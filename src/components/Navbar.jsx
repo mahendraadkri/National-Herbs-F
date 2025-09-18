@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import logo from "../assets/national-herbo.png";
 import {
   FaPhoneAlt,
@@ -40,10 +41,10 @@ function Navbar() {
           {/* Nav links */}
           <ul className="hidden md:flex items-center space-x-8 font-medium">
             <li className="flex items-center space-x-2 hover:text-green-600 cursor-pointer">
-              <FaHome /> <span>Home</span>
+              <FaHome /> <Link to="/">Home</Link>
             </li>
             <li className="flex items-center space-x-2 hover:text-green-600 cursor-pointer">
-              <FaInfoCircle /> <span>About Us</span>
+              <FaInfoCircle /> <Link to="/about">About Us</Link>
             </li>
             <li className="flex items-center space-x-2 hover:text-green-600 cursor-pointer">
               <FaBlog /> <span>Blogs</span>

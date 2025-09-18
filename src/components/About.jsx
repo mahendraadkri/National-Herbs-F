@@ -1,8 +1,6 @@
 // src/components/About.jsx
 import React from "react";
 import { FaLeaf, FaTint } from "react-icons/fa";
-
-// Replace these with your actual asset paths
 import leafIcon from "../assets/logo-icon.png";
 import aboutImg from "../assets/banner001.png";
 
