@@ -47,13 +47,13 @@ function Navbar() {
               <FaInfoCircle /> <Link to="/about">About Us</Link>
             </li>
             <li className="flex items-center space-x-2 hover:text-green-600 cursor-pointer">
-              <FaBlog /> <span>Blogs</span>
+              <FaBlog /> <Link to="/blog">Blogs</Link>
             </li>
             <li className="flex items-center space-x-2 hover:text-green-600 cursor-pointer">
-              <FaUsers /> <span>Distributors</span>
+              <FaUsers /> <Link to="/distributors">Distributors</Link>
             </li>
             <li className="flex items-center space-x-2 hover:text-green-600 cursor-pointer">
-              <FaBox /> <span>Products</span>
+              <FaBox /> <Link to="/products">Products</Link>
             </li>
           </ul>
 
