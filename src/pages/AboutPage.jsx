@@ -9,6 +9,7 @@ import Team from "../components/Team";
 import Certificates from "../components/Certificates";
 import Sustainability from "../components/Sustainability";
 import ManufacturingProcess from "../components/ManufacturingProcess";
+import Newsletter from "../components/Newsletter";
 
 export default function AboutPage() {
   return (
@@ -22,6 +23,7 @@ export default function AboutPage() {
         <Certificates />
         <Sustainability />
         <ManufacturingProcess />
+        <Newsletter />
       </main>
       <Footer />
     </div>

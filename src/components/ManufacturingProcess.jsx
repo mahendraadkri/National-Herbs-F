@@ -36,14 +36,14 @@ const STEPS = [
 
 export default function ManufacturingProcess() {
   return (
-    <section className="w-full bg-gray-50 py-10">
+    <section className="w-full bg-gray-100 py-10">
       <div className="max-w-7xl mx-auto px-6">
         {/* Header */}
         <div className="text-center mb-12">
           <img
             src={leafIcon}
             alt="Leaf Icon"
-            className="h-14 w-14 mx-auto mb-3 object-contain"
+            className="h-24 w-24 mx-auto object-contain"
           />
           <h2 className="text-3xl md:text-4xl font-semibold text-green-900">
             Our Manufacturing Process
@@ -58,7 +58,7 @@ export default function ManufacturingProcess() {
           {STEPS.map((step, i) => (
             <div
               key={i}
-              className="bg-gray-100 rounded-2xl shadow-sm p-8 flex flex-col sm:flex-row items-center gap-6 hover:bg-gray-200 hover:shadow-md transition"
+              className="bg-gray-50 rounded-2xl shadow-sm p-8 flex flex-col sm:flex-row items-center gap-6 hover:bg-gray-300 hover:shadow-md transition"
             >
               {/* Number in colored circle */}
               <div
