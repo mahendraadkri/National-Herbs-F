@@ -6,6 +6,9 @@ import Journey from "../components/Journey";
 import MissionVision from "../components/MissionVision";
 import WhyChooseUs from "../components/WhyChooseUs";
 import Team from "../components/Team";
+import Certificates from "../components/Certificates";
+import Sustainability from "../components/Sustainability";
+import ManufacturingProcess from "../components/ManufacturingProcess";
 
 export default function AboutPage() {
   return (
@@ -16,6 +19,9 @@ export default function AboutPage() {
         <MissionVision />
         <WhyChooseUs />
         <Team />
+        <Certificates />
+        <Sustainability />
+        <ManufacturingProcess />
       </main>
       <Footer />
     </div>

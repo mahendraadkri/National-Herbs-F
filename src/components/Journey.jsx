@@ -5,7 +5,7 @@ import chiaImg from "../assets/banner003.png";
 
 export default function Journey() {
   return (
-      <section className="max-w-7xl mx-auto px-6 py-16">
+      <section className="max-w-7xl mx-auto px-6 py-10">
         {/* Header */}
         <div className="text-center mb-8">
           <img

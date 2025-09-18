@@ -5,7 +5,7 @@ import bgLeaf from "../assets/herbo-icon.png";
 
 export default function MissionVision() {
   return (
-    <section className="relative max-w-7xl mx-auto px-6 py-16">
+    <section className="relative max-w-7xl mx-auto px-6 py-10">
       {/* Background watermark */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-10">
         <img
