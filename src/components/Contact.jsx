@@ -1,0 +1,254 @@
+import React, { useState } from "react";
+import {
+  FaPhoneAlt,
+  FaEnvelope,
+  FaMapMarkerAlt,
+  FaClock,
+} from "react-icons/fa";
+import leafIcon from "../assets/logo-icon.png";
+
+export default function Contact() {
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    subject: "",
+    message: "",
+  });
+  const [sent, setSent] = useState(false);
+  const [error, setError] = useState("");
+
+  const onChange = (e) => {
+    const { name, value } = e.target;
+    setForm((f) => ({ ...f, [name]: value }));
+  };
+
+  const onSubmit = (e) => {
+    e.preventDefault();
+    setError("");
+    const emailOk = /^\S+@\S+\.\S+$/.test(form.email);
+    const nameOk = form.name.trim().length >= 2;
+    const msgOk = form.message.trim().length >= 10;
+    if (!nameOk) return setError("Please enter your full name.");
+    if (!emailOk) return setError("Please enter a valid email address.");
+    if (!msgOk) return setError("Message should be at least 10 characters.");
+
+    // TODO: replace with your API call (EmailJS, backend, etc.)
+    // For now, open a prefilled mailto as a fallback:
+    const body = encodeURIComponent(
+      `Subject: ${form.subject || "(no subject)"}\nName: ${form.name}\nEmail: ${
+        form.email
+      }\nPhone: ${form.phone}\n\n${form.message}`
+    );
+    window.location.href = `mailto:info@nationalherbs.com?subject=${encodeURIComponent(
+      form.subject || "Website Contact"
+    )}&body=${body}`;
+
+    setSent(true);
+    setForm({ name: "", email: "", phone: "", subject: "", message: "" });
+  };
+
+  return (
+    <section className="bg-gray-50">
+      <div className="max-w-7xl mx-auto px-6 pb-12">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <img
+            src={leafIcon}
+            alt=""
+            className="h-24 w-24 mx-auto object-contain"
+          />
+          <h1 className="text-3xl md:text-4xl font-semibold text-green-900">
+            Contact Us
+          </h1>
+          <p className="mt-2 text-gray-600">
+            We’d love to hear from you. Send a message and we’ll reply shortly.
+          </p>
+        </div>
+
+        {/* Map */}
+        <div className="my-12 rounded-2xl overflow-hidden ring-1 ring-gray-100 shadow-sm bg-white">
+          <iframe
+            title="National Herbs Location"
+            src="https://www.google.com/maps?q=Nayabazar,Sorakhutte,Kathmandu&output=embed"
+            className="w-full h-80"
+            loading="lazy"
+          />
+        </div>
+
+        {/* Info + Form */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Info cards */}
+          <div className="space-y-4">
+            <InfoCard
+              icon={<FaPhoneAlt />}
+              title="Phone"
+              lines={["+977 51-591457", "+977 51-591047"]}
+              hrefs={["tel:+97751591457", "tel:+97751591047"]}
+            />
+            <InfoCard
+              icon={<FaEnvelope />}
+              title="Email"
+              lines={["info@nationalherbs.com"]}
+              hrefs={["mailto:info@nationalherbs.com"]}
+            />
+            <InfoCard
+              icon={<FaMapMarkerAlt />}
+              title="Address"
+              lines={["Nayabazar, Sorakhutte", "Kathmandu, Nepal"]}
+              hrefs={[
+                "https://maps.google.com/?q=Nayabazar,Sorakhutte,Kathmandu",
+              ]}
+              external
+            />
+            <InfoCard
+              icon={<FaClock />}
+              title="Hours"
+              lines={["Sun–Fri: 10:00 am – 6:00 pm", "Saturday: Closed"]}
+            />
+          </div>
+
+          {/* Form */}
+          <div className="lg:col-span-2">
+            <div className="rounded-2xl bg-white shadow-sm ring-1 ring-gray-100 p-6 md:p-8">
+              {sent && (
+                <div className="mb-4 rounded-md bg-green-50 text-green-800 px-4 py-3">
+                  Thank you! Your default email client just opened with your
+                  message. We’ll be in touch.
+                </div>
+              )}
+              {error && (
+                <div className="mb-4 rounded-md bg-red-50 text-red-700 px-4 py-3">
+                  {error}
+                </div>
+              )}
+
+              <form
+                onSubmit={onSubmit}
+                className="grid grid-cols-1 md:grid-cols-2 gap-4"
+              >
+                <div>
+                  <label className="text-sm text-gray-700">Full Name</label>
+                  <input
+                    name="name"
+                    value={form.name}
+                    onChange={onChange}
+                    placeholder="Your name"
+                    className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-4 py-3
+                               focus:outline-none focus:ring-2 focus:ring-green-500"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="text-sm text-gray-700">Email</label>
+                  <input
+                    name="email"
+                    type="email"
+                    value={form.email}
+                    onChange={onChange}
+                    placeholder="you@example.com"
+                    className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-4 py-3
+                               focus:outline-none focus:ring-2 focus:ring-green-500"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="text-sm text-gray-700">
+                    Phone (optional)
+                  </label>
+                  <input
+                    name="phone"
+                    value={form.phone}
+                    onChange={onChange}
+                    placeholder="+977 ..."
+                    className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-4 py-3
+                               focus:outline-none focus:ring-2 focus:ring-green-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-sm text-gray-700">Subject</label>
+                  <input
+                    name="subject"
+                    value={form.subject}
+                    onChange={onChange}
+                    placeholder="How can we help?"
+                    className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-4 py-3
+                               focus:outline-none focus:ring-2 focus:ring-green-500"
+                  />
+                </div>
+
+                <div className="md:col-span-2">
+                  <label className="text-sm text-gray-700">Message</label>
+                  <textarea
+                    name="message"
+                    value={form.message}
+                    onChange={onChange}
+                    rows={5}
+                    placeholder="Write your message..."
+                    className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-4 py-3
+                               focus:outline-none focus:ring-2 focus:ring-green-500"
+                    required
+                  />
+                </div>
+
+                <div className="md:col-span-2 flex items-center justify-between">
+                  <p className="text-xs text-gray-500">
+                    By submitting, you agree to be contacted by National Herbs.
+                  </p>
+                  <button
+                    type="submit"
+                    className="rounded-full bg-green-600 text-white font-semibold px-6 py-3
+                               hover:bg-green-700 transition"
+                  >
+                    Send Message
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ---------- Small card component ---------- */
+function InfoCard({ icon, title, lines, hrefs = [], external = false }) {
+  return (
+    <div className="rounded-2xl bg-white shadow-sm ring-1 ring-gray-100 p-5">
+      <div className="flex items-center gap-3">
+        <div className="h-10 w-10 rounded-full bg-green-600 text-white grid place-items-center">
+          <span className="text-base">{icon}</span>
+        </div>
+        <h3 className="text-green-900 font-semibold">{title}</h3>
+      </div>
+      <ul className="mt-3 space-y-1 text-gray-700">
+        {lines.map((line, i) => {
+          const href = hrefs[i];
+          if (!href) return <li key={i}>{line}</li>;
+          return external ? (
+            <li key={i}>
+              <a
+                className="text-green-700 hover:underline"
+                href={href}
+                target="_blank"
+                rel="noreferrer"
+              >
+                {line}
+              </a>
+            </li>
+          ) : (
+            <li key={i}>
+              <a className="text-green-700 hover:underline" href={href}>
+                {line}
+              </a>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+}

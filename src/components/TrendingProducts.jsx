@@ -1,87 +1,83 @@
-// src/components/TrendingProducts.jsx
-import { useMemo, useState } from "react";
+import React from "react";
 import { FaStar } from "react-icons/fa";
-import { CATEGORIES, PRODUCTS } from "../data/products";
-import leafIcon from "../assets/logo-icon.png";
 
-export default function TrendingProducts() {
-  const [cat, setCat] = useState(CATEGORIES[0]);
+// Demo fallback data (replace with real)
+const DEMO_PRODUCTS = [
+  {
+    id: 1,
+    name: "Aloe Vera Facewash",
+    price: 450,
+    rating: 4.5,
+    image: "/products/aloe-facewash.jpg", // put image in /public/products/
+  },
+  {
+    id: 2,
+    name: "Scar Shine Cream",
+    price: 650,
+    rating: 4,
+    image: "/products/scar-shine.jpg",
+  },
+  {
+    id: 3,
+    name: "Herbal Shampoo",
+    price: 350,
+    rating: 4.2,
+    image: "/products/shampoo.jpg",
+  },
+  {
+    id: 4,
+    name: "Tulsi Herbal Tea",
+    price: 300,
+    rating: 5,
+    image: "/products/tulsi-tea.jpg",
+  },
+];
 
-  const items = useMemo(
-    () => PRODUCTS.filter((p) => p.tags.includes(cat)),
-    [cat]
-  );
+export default function TrendingProducts({ products }) {
+  // fallback to demo if nothing passed
+  const list = Array.isArray(products) && products.length > 0 ? products : DEMO_PRODUCTS;
 
   return (
-    <section className="max-w-7xl mx-auto px-6 py-14">
-      {/* Header */}
-      <div className="text-center mb-8">
-        <div className="mx-auto mb-2">
-          <img
-            src={leafIcon}
-            alt="Leaf Icon"
-            className="h-26 w-26 object-contain mx-auto"
-          />
-        </div>
-        <h2 className="text-4xl md:text-3xl font-bold text-green-900">
-          Trending Products
-        </h2>
-        <p className="text-gray-600 mt-2">Browse our most loved products</p>
-      </div>
-
-      {/* Tabs */}
-      <div className="flex justify-center">
-        <div className="inline-flex gap-2 p-1 bg-gray-200 rounded-full">
-          {CATEGORIES.map((c) => (
-            <button
-              key={c}
-              onClick={() => setCat(c)}
-              className={`px-4 py-2 rounded-full text-s font-medium transition
-                ${
-                  c === cat
-                    ? "bg-green-600 text-white shadow"
-                    : "text-gray-700 hover:bg-white"
-                }`}
-              aria-pressed={c === cat}
-            >
-              {c}
-            </button>
-          ))}
-        </div>
-      </div>
+    <section className="max-w-7xl mx-auto px-6 py-10">
+      {/* Heading */}
+      <h2 className="text-2xl md:text-3xl font-semibold text-green-900 mb-6 text-center">
+        Trending Products
+      </h2>
 
       {/* Grid */}
-      <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {items.map((p) => (
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        {list.map((p) => (
           <article
             key={p.id}
-            className="bg-gray-100 rounded-2xl shadow-sm p-4 hover:shadow-md transition"
+            className="bg-white rounded-2xl shadow-sm hover:shadow-md overflow-hidden transition"
           >
-            <div className="bg-white rounded-xl p-6">
+            {/* Image */}
+            <div className="h-48 w-full overflow-hidden bg-gray-100">
               <img
                 src={p.image}
                 alt={p.name}
-                className="w-full h-40 object-contain"
-                loading="lazy"
+                className="w-full h-full object-cover"
+                onError={(e) => (e.currentTarget.style.display = "none")}
               />
             </div>
-            <h3 className="mt-4 font-medium text-gray-800 text-center">
-              {p.name}
-            </h3>
 
-            {/* rating */}
-            <div className="mt-2 flex items-center justify-center gap-1">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <FaStar
-                  key={i}
-                  className={`text-sm ${
-                    i < Math.round(p.rating)
-                      ? "text-yellow-500"
-                      : "text-gray-300"
-                  }`}
-                  aria-hidden="true"
-                />
-              ))}
+            {/* Content */}
+            <div className="p-5">
+              <h3 className="font-semibold text-green-900">{p.name}</h3>
+
+              <div className="mt-2 flex items-center justify-between">
+                <div className="flex items-center gap-1 text-yellow-500">
+                  <FaStar />
+                  <span className="text-sm text-gray-700">
+                    {p.rating ?? "—"}
+                  </span>
+                </div>
+                {p.price != null && (
+                  <div className="text-lg font-semibold text-green-800">
+                    Rs. {p.price}
+                  </div>
+                )}
+              </div>
             </div>
           </article>
         ))}

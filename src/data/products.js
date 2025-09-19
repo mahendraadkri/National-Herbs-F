@@ -9,8 +9,11 @@ export const PRODUCTS = [
         name: "Scar Shine Moisturizing Cream",
         price: 599,
         rating: 4.5,
+        category: "Cream",
         image: scarShinePng, // import from /src/assets
-        tags: ["New Arrivals", "Bestseller"],
+        images: ["/assets/products/aloe-facewash.jpg"],
+        description:
+            "Hydrating and soothing facewash with pure Aloe Vera for daily use.",
     },
     {
         id: "p1",
