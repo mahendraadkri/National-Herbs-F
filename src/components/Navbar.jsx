@@ -59,7 +59,7 @@ function Navbar() {
 
           {/* Contact button */}
           <button className="ml-6 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition">
-            Contact Us
+            <Link to="/contact">Contact Us</Link>
           </button>
         </div>
       </nav>
