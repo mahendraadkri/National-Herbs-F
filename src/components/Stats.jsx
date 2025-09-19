@@ -38,7 +38,7 @@ export default function Stats() {
         <img
           src={leafIcon}
           alt="Leaf Icon"
-          className="h-14 w-14 mx-auto mb-3 object-contain"
+          className="h-24 w-24 mx-auto object-contain"
         />
         <h2 className="text-2xl md:text-3xl font-semibold text-green-900">
           National Herbs – Your Gateway to Natural Wellness
