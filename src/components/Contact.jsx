@@ -15,26 +15,35 @@ export default function Contact() {
     subject: "",
     message: "",
   });
+  const [errors, setErrors] = useState({});
   const [sent, setSent] = useState(false);
-  const [error, setError] = useState("");
 
-  const onChange = (e) => {
-    const { name, value } = e.target;
+  // simple validators
+  const validate = () => {
+    const e = {};
+    if (!form.name.trim()) e.name = "Name is required";
+    if (!/^\S+@\S+\.\S+$/.test(form.email)) e.email = "Enter a valid email";
+    if (form.phone && !/^\+?\d{7,15}$/.test(form.phone))
+      e.phone = "Enter a valid phone number";
+    if (!form.message.trim() || form.message.trim().length < 10)
+      e.message = "Message should be at least 10 characters";
+    return e;
+  };
+
+  const onChange = (ev) => {
+    const { name, value } = ev.target;
     setForm((f) => ({ ...f, [name]: value }));
+    // clear only this field's error while typing
+    setErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
   const onSubmit = (e) => {
     e.preventDefault();
-    setError("");
-    const emailOk = /^\S+@\S+\.\S+$/.test(form.email);
-    const nameOk = form.name.trim().length >= 2;
-    const msgOk = form.message.trim().length >= 10;
-    if (!nameOk) return setError("Please enter your full name.");
-    if (!emailOk) return setError("Please enter a valid email address.");
-    if (!msgOk) return setError("Message should be at least 10 characters.");
+    const eMap = validate();
+    setErrors(eMap);
+    if (Object.keys(eMap).length > 0) return;
 
-    // TODO: replace with your API call (EmailJS, backend, etc.)
-    // For now, open a prefilled mailto as a fallback:
+    // Fallback: open default email client
     const body = encodeURIComponent(
       `Subject: ${form.subject || "(no subject)"}\nName: ${form.name}\nEmail: ${
         form.email
@@ -46,18 +55,23 @@ export default function Contact() {
 
     setSent(true);
     setForm({ name: "", email: "", phone: "", subject: "", message: "" });
+    setErrors({});
   };
+
+  // utility to build input classes based on error
+  const inputClass = (hasErr) =>
+    `mt-1 w-full rounded-lg border bg-white px-4 py-3 focus:outline-none ${
+      hasErr
+        ? "border-red-500 focus:ring-2 focus:ring-red-500"
+        : "border-gray-200 focus:ring-2 focus:ring-green-500"
+    }`;
 
   return (
     <section className="bg-gray-50">
       <div className="max-w-7xl mx-auto px-6 pb-12">
         {/* Header */}
         <div className="text-center mb-8">
-          <img
-            src={leafIcon}
-            alt=""
-            className="h-24 w-24 mx-auto object-contain"
-          />
+          <img src={leafIcon} alt="" className="h-24 w-24 mx-auto object-contain" />
           <h1 className="text-3xl md:text-4xl font-semibold text-green-900">
             Contact Us
           </h1>
@@ -96,9 +110,7 @@ export default function Contact() {
               icon={<FaMapMarkerAlt />}
               title="Address"
               lines={["Nayabazar, Sorakhutte", "Kathmandu, Nepal"]}
-              hrefs={[
-                "https://maps.google.com/?q=Nayabazar,Sorakhutte,Kathmandu",
-              ]}
+              hrefs={["https://maps.google.com/?q=Nayabazar,Sorakhutte,Kathmandu"]}
               external
             />
             <InfoCard
@@ -117,16 +129,9 @@ export default function Contact() {
                   message. We’ll be in touch.
                 </div>
               )}
-              {error && (
-                <div className="mb-4 rounded-md bg-red-50 text-red-700 px-4 py-3">
-                  {error}
-                </div>
-              )}
 
-              <form
-                onSubmit={onSubmit}
-                className="grid grid-cols-1 md:grid-cols-2 gap-4"
-              >
+              <form onSubmit={onSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Name */}
                 <div>
                   <label className="text-sm text-gray-700">Full Name</label>
                   <input
@@ -134,12 +139,14 @@ export default function Contact() {
                     value={form.name}
                     onChange={onChange}
                     placeholder="Your name"
-                    className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-4 py-3
-                               focus:outline-none focus:ring-2 focus:ring-green-500"
-                    required
+                    className={inputClass(!!errors.name)}
                   />
+                  {errors.name && (
+                    <p className="text-red-600 text-sm mt-1">{errors.name}</p>
+                  )}
                 </div>
 
+                {/* Email */}
                 <div>
                   <label className="text-sm text-gray-700">Email</label>
                   <input
@@ -148,26 +155,29 @@ export default function Contact() {
                     value={form.email}
                     onChange={onChange}
                     placeholder="you@example.com"
-                    className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-4 py-3
-                               focus:outline-none focus:ring-2 focus:ring-green-500"
-                    required
+                    className={inputClass(!!errors.email)}
                   />
+                  {errors.email && (
+                    <p className="text-red-600 text-sm mt-1">{errors.email}</p>
+                  )}
                 </div>
 
+                {/* Phone */}
                 <div>
-                  <label className="text-sm text-gray-700">
-                    Phone (optional)
-                  </label>
+                  <label className="text-sm text-gray-700">Phone (optional)</label>
                   <input
                     name="phone"
                     value={form.phone}
                     onChange={onChange}
                     placeholder="+977 ..."
-                    className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-4 py-3
-                               focus:outline-none focus:ring-2 focus:ring-green-500"
+                    className={inputClass(!!errors.phone)}
                   />
+                  {errors.phone && (
+                    <p className="text-red-600 text-sm mt-1">{errors.phone}</p>
+                  )}
                 </div>
 
+                {/* Subject */}
                 <div>
                   <label className="text-sm text-gray-700">Subject</label>
                   <input
@@ -175,11 +185,11 @@ export default function Contact() {
                     value={form.subject}
                     onChange={onChange}
                     placeholder="How can we help?"
-                    className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-4 py-3
-                               focus:outline-none focus:ring-2 focus:ring-green-500"
+                    className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500"
                   />
                 </div>
 
+                {/* Message */}
                 <div className="md:col-span-2">
                   <label className="text-sm text-gray-700">Message</label>
                   <textarea
@@ -188,10 +198,11 @@ export default function Contact() {
                     onChange={onChange}
                     rows={5}
                     placeholder="Write your message..."
-                    className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-4 py-3
-                               focus:outline-none focus:ring-2 focus:ring-green-500"
-                    required
+                    className={inputClass(!!errors.message)}
                   />
+                  {errors.message && (
+                    <p className="text-red-600 text-sm mt-1">{errors.message}</p>
+                  )}
                 </div>
 
                 <div className="md:col-span-2 flex items-center justify-between">
@@ -200,8 +211,7 @@ export default function Contact() {
                   </p>
                   <button
                     type="submit"
-                    className="rounded-full bg-green-600 text-white font-semibold px-6 py-3
-                               hover:bg-green-700 transition"
+                    className="rounded-full bg-green-600 text-white font-semibold px-6 py-3 hover:bg-green-700 transition"
                   >
                     Send Message
                   </button>
@@ -209,6 +219,7 @@ export default function Contact() {
               </form>
             </div>
           </div>
+          {/* /Form */}
         </div>
       </div>
     </section>
@@ -231,12 +242,7 @@ function InfoCard({ icon, title, lines, hrefs = [], external = false }) {
           if (!href) return <li key={i}>{line}</li>;
           return external ? (
             <li key={i}>
-              <a
-                className="text-green-700 hover:underline"
-                href={href}
-                target="_blank"
-                rel="noreferrer"
-              >
+              <a className="text-green-700 hover:underline" href={href} target="_blank" rel="noreferrer">
                 {line}
               </a>
             </li>

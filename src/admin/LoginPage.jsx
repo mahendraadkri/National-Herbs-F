@@ -1,9 +1,14 @@
 import React, { useState } from "react";
 import { useLocation, useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
-import { FaEnvelope, FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
-import leafIcon from "../assets/logo-icon.png"; // or your brand mark
-// If you prefer the full logo: import logo from "../assets/national-herbo.png";
+import {
+  FaEnvelope,
+  FaLock,
+  FaEye,
+  FaEyeSlash,
+  FaArrowLeft,
+} from "react-icons/fa";
+import leafIcon from "../assets/logo-icon.png";
 
 export default function LoginPage() {
   const { login } = useAuth();
@@ -11,7 +16,11 @@ export default function LoginPage() {
   const location = useLocation();
   const from = location.state?.from?.pathname || "/admin";
 
-  const [form, setForm] = useState({ email: "", password: "", remember: false });
+  const [form, setForm] = useState({
+    email: "",
+    password: "",
+    remember: false,
+  });
   const [err, setErr] = useState("");
   const [showPw, setShowPw] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -22,7 +31,6 @@ export default function LoginPage() {
     setLoading(true);
     try {
       await login({ email: form.email, password: form.password });
-      // (Optional) remember token logic can be handled in AuthContext
       navigate(from, { replace: true });
     } catch (e) {
       setErr(e.message || "Login failed");
@@ -47,7 +55,6 @@ export default function LoginPage() {
               Secure access for authorized personnel. Manage products, blogs,
               distributors and more.
             </p>
-            <div className="absolute inset-x-0 bottom-0 h-24 bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.15),transparent_70%)] pointer-events-none" />
           </div>
 
           {/* Form / Right panel */}
@@ -85,7 +92,9 @@ export default function LoginPage() {
                     className="w-full rounded-xl border border-gray-200 pl-10 pr-3 py-3
                                focus:outline-none focus:ring-2 focus:ring-green-600"
                     value={form.email}
-                    onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
+                    onChange={(e) =>
+                      setForm((f) => ({ ...f, email: e.target.value }))
+                    }
                     placeholder="admin@example.com"
                     required
                   />
@@ -121,25 +130,6 @@ export default function LoginPage() {
                 </div>
               </div>
 
-              {/* Remember + Forgot */}
-              <div className="flex items-center justify-between">
-                <label className="inline-flex items-center gap-2 text-sm text-gray-600">
-                  <input
-                    type="checkbox"
-                    className="h-4 w-4 rounded border-gray-300 text-green-600 focus:ring-green-600"
-                    checked={form.remember}
-                    onChange={(e) =>
-                      setForm((f) => ({ ...f, remember: e.target.checked }))
-                    }
-                  />
-                  Remember me
-                </label>
-                {/* You can wire this to a real page later */}
-                <Link to="#" className="text-sm text-green-700 hover:underline">
-                  Forgot password?
-                </Link>
-              </div>
-
               {/* Submit */}
               <button
                 type="submit"
@@ -147,46 +137,18 @@ export default function LoginPage() {
                 className="w-full rounded-xl bg-green-600 text-white font-semibold py-3
                            hover:bg-green-700 transition disabled:opacity-60 disabled:cursor-not-allowed"
               >
-                {loading ? (
-                  <span className="inline-flex items-center gap-2">
-                    <svg
-                      className="animate-spin h-4 w-4 text-white"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      />
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
-                      />
-                    </svg>
-                    Signing in…
-                  </span>
-                ) : (
-                  "Sign In"
-                )}
+                {loading ? "Signing in..." : "Sign In"}
               </button>
             </form>
 
-            {/* Help / link back */}
-            <div className="mt-6 text-xs text-gray-500">
-              Trouble logging in? Contact{" "}
-              <a
-                href="mailto:info@nationalherbs.com"
-                className="text-green-700 hover:underline"
+            {/* Back to Home button */}
+            <div className="mt-6">
+              <Link
+                to="/"
+                className="inline-flex items-center gap-2 text-green-700 font-medium hover:underline"
               >
-                info@nationalherbs.com
-              </a>
-              .
+                <FaArrowLeft /> Back to Home
+              </Link>
             </div>
           </div>
         </div>
