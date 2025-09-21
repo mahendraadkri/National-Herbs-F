@@ -17,6 +17,7 @@ import Dashboard from "./admin/Dashboard";
 import ProductsAdmin from "./admin/ProductsAdmin";
 import DistributorsAdmin from "./admin/DistributorsAdmin";
 import BlogAdmin from "./admin/BlogAdmin";
+import CategoryAdmin from "./admin/CategoryAdmin";
 
 function App() {
   return (
@@ -36,6 +37,7 @@ function App() {
         <Route element={<ProtectedRoute />}>
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<Dashboard />} />
+            <Route path="categories" element={<CategoryAdmin />} />
             <Route path="products" element={<ProductsAdmin />} />
             <Route path="distributors" element={<DistributorsAdmin />} />
             <Route path="blogs" element={<BlogAdmin />} />
