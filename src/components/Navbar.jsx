@@ -35,7 +35,7 @@ function Navbar() {
         <div className="mx-auto flex justify-between items-center px-6 py-4 max-w-7xl">
           {/* Logo */}
           <div className="flex items-center space-x-2">
-            <img src={logo} alt="National Herbs" className="h-10 w-auto" />
+            <img src={logo} alt="National Herbs" className="h-16 w-auto" />
           </div>
 
           {/* Nav links */}

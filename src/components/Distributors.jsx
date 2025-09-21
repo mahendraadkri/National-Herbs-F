@@ -88,7 +88,7 @@ export default function Distributors() {
 
   return (
     <>
-      <section className="max-w-7xl mx-auto px-6 pb-12">
+      <section className="max-w-7xl mx-auto px-6 pb-12 py-10">
         {/* Header */} 
         <div className="text-center mb-8">
           <img

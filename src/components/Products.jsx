@@ -57,55 +57,48 @@ export default function Products() {
   }, [active, query, sort]);
 
   return (
-    <section className="bg-gray-50">
-      <div className="max-w-7xl mx-auto px-6 pb-12">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <img src={leafIcon} className="h-20 w-24 mx-auto" alt="" />
-          <h1 className="text-3xl md:text-4xl font-semibold text-green-900">
-            Shop Products
-          </h1>
-          <p className="text-gray-600 mt-1">
-            Clean, herbal, and science-backed care—crafted for everyday
-            wellness.
-          </p>
-        </div>
-
-        {/* Categories + Search + Sort */}
-        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-6">
-          <CategoryPills
-            list={categories}
-            value={active}
-            onChange={setActive}
-          />
-
-          <div className="flex items-center gap-3">
-            <input
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search products…"
-              className="w-full md:w-64 rounded-full border border-green-200 bg-white/90 px-5 py-3
-                         focus:outline-none focus:ring-2 focus:ring-green-500"
-            />
-            <select
-              value={sort}
-              onChange={(e) => setSort(e.target.value)}
-              className="rounded-full border border-green-200 bg-white/90 px-4 py-3
-                         text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-            >
-              <option value="popular">Most Popular</option>
-              <option value="price-asc">Price: Low to High</option>
-              <option value="price-desc">Price: High to Low</option>
-            </select>
-          </div>
-        </div>
-
-        {/* Featured Collections Row */}
-        <FeaturedRow items={COLLECTIONS} />
-
-        {/* Product Grid */}
-        <ProductGrid products={visible} />
+    <section className="bg-gray-50 max-w-7xl mx-auto px-6 pb-12 py-10">
+      {/* Header */}
+      <div className="text-center mb-8">
+        <img src={leafIcon} className="h-20 w-24 mx-auto" alt="" />
+        <h1 className="text-3xl md:text-4xl font-semibold text-green-900">
+          Shop Products
+        </h1>
+        <p className="text-gray-600 mt-1">
+          Clean, herbal, and science-backed care—crafted for everyday wellness.
+        </p>
       </div>
+
+      {/* Categories + Search + Sort */}
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-6">
+        <CategoryPills list={categories} value={active} onChange={setActive} />
+
+        <div className="flex items-center gap-3">
+          <input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search products…"
+            className="w-full md:w-64 rounded-full border border-green-200 bg-white/90 px-5 py-3
+                         focus:outline-none focus:ring-2 focus:ring-green-500"
+          />
+          <select
+            value={sort}
+            onChange={(e) => setSort(e.target.value)}
+            className="rounded-full border border-green-200 bg-white/90 px-4 py-3
+                         text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+          >
+            <option value="popular">Most Popular</option>
+            <option value="price-asc">Price: Low to High</option>
+            <option value="price-desc">Price: High to Low</option>
+          </select>
+        </div>
+      </div>
+
+      {/* Featured Collections Row */}
+      <FeaturedRow items={COLLECTIONS} />
+
+      {/* Product Grid */}
+      <ProductGrid products={visible} />
     </section>
   );
 }
