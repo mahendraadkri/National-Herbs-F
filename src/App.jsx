@@ -18,6 +18,7 @@ import ProductsAdmin from "./admin/ProductsAdmin";
 import DistributorsAdmin from "./admin/DistributorsAdmin";
 import BlogAdmin from "./admin/BlogAdmin";
 import CategoryAdmin from "./admin/CategoryAdmin";
+import AdminOurTeam from "./admin/AdminOurTeam";
 
 function App() {
   return (
@@ -41,6 +42,7 @@ function App() {
             <Route path="products" element={<ProductsAdmin />} />
             <Route path="distributors" element={<DistributorsAdmin />} />
             <Route path="blogs" element={<BlogAdmin />} />
+            <Route path="our-team" element={<AdminOurTeam />} />
           </Route>
         </Route>
 

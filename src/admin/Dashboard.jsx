@@ -1,5 +1,5 @@
 import React from "react";
-import { FaBox, FaUsers, FaBlog, FaChartLine } from "react-icons/fa";
+import { FaBox, FaUsers, FaBlog, FaChartLine, FaUserFriends } from "react-icons/fa";
 
 export default function Dashboard() {
   // These numbers would normally come from your backend API
@@ -8,6 +8,7 @@ export default function Dashboard() {
     { id: 2, label: "Distributors", value: 42, icon: <FaUsers /> },
     { id: 3, label: "Blog Posts", value: 16, icon: <FaBlog /> },
     { id: 4, label: "Monthly Sales", value: "NPR 3.2M", icon: <FaChartLine /> },
+    { id: 5, label: "Team Members", value: 8, icon: <FaUserFriends /> }, // 👈 New
   ];
 
   return (
@@ -21,7 +22,7 @@ export default function Dashboard() {
       </div>
 
       {/* Stats cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
         {stats.map((s) => (
           <div
             key={s.id}
@@ -39,7 +40,7 @@ export default function Dashboard() {
       </div>
 
       {/* Quick links / shortcuts */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <ShortcutCard
           title="Manage Products"
           desc="Add, edit or remove product listings."
@@ -54,6 +55,11 @@ export default function Dashboard() {
           title="Blog"
           desc="Publish and manage blog posts."
           href="/admin/blogs"
+        />
+        <ShortcutCard
+          title="Our Team"
+          desc="Add or edit team members."
+          href="/admin/our-team"
         />
       </div>
     </div>

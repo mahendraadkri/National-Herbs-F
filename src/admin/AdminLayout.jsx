@@ -13,7 +13,7 @@ export default function AdminLayout() {
 
   const onLogout = async () => {
     try {
-      await logout();            // clear auth
+      await logout(); // clear auth
     } finally {
       navigate("/", { replace: true }); // go home no matter what
     }
@@ -25,11 +25,55 @@ export default function AdminLayout() {
       <aside className="col-span-12 md:col-span-3 lg:col-span-2 border-r bg-white p-4">
         <h2 className="font-bold text-green-800 mb-4">Admin</h2>
         <nav className="space-y-2">
-          <NavLink to="/admin" end className={({ isActive }) => `${linkBase} ${isActive ? linkActive : "text-gray-700"}`}>Dashboard</NavLink>
-          <NavLink to="/admin/products" className={({ isActive }) => `${linkBase} ${isActive ? linkActive : "text-gray-700"}`}>Products</NavLink>
-          <NavLink to="/admin/categories" className={({ isActive }) => `${linkBase} ${isActive ? linkActive : "text-gray-700"}`}>Categories</NavLink>
-          <NavLink to="/admin/distributors" className={({ isActive }) => `${linkBase} ${isActive ? linkActive : "text-gray-700"}`}>Distributors</NavLink>
-          <NavLink to="/admin/blogs" className={({ isActive }) => `${linkBase} ${isActive ? linkActive : "text-gray-700"}`}>Blogs</NavLink>
+          <NavLink
+            to="/admin"
+            end
+            className={({ isActive }) =>
+              `${linkBase} ${isActive ? linkActive : "text-gray-700"}`
+            }
+          >
+            Dashboard
+          </NavLink>
+          <NavLink
+            to="/admin/products"
+            className={({ isActive }) =>
+              `${linkBase} ${isActive ? linkActive : "text-gray-700"}`
+            }
+          >
+            Products
+          </NavLink>
+          <NavLink
+            to="/admin/categories"
+            className={({ isActive }) =>
+              `${linkBase} ${isActive ? linkActive : "text-gray-700"}`
+            }
+          >
+            Categories
+          </NavLink>
+          <NavLink
+            to="/admin/distributors"
+            className={({ isActive }) =>
+              `${linkBase} ${isActive ? linkActive : "text-gray-700"}`
+            }
+          >
+            Distributors
+          </NavLink>
+          <NavLink
+            to="/admin/blogs"
+            className={({ isActive }) =>
+              `${linkBase} ${isActive ? linkActive : "text-gray-700"}`
+            }
+          >
+            Blogs
+          </NavLink>
+          <NavLink
+            to="/admin/our-team"
+            className={({ isActive }) =>
+              `${linkBase} ${isActive ? linkActive : "text-gray-700"}`
+            }
+          >
+            Our Team
+          </NavLink>
         </nav>
 
         <button
