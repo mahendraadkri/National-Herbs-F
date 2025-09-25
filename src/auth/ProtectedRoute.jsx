@@ -1,13 +1,24 @@
+// src/auth/ProtectedRoute.jsx
 import React from "react";
-import { Navigate, Outlet, useLocation } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "./AuthContext";
 
-export default function ProtectedRoute() {
-  const { isAuthenticated } = useAuth();
+export default function ProtectedRoute({ children }) {
+  const { user, authLoading } = useAuth();
   const location = useLocation();
 
-  if (!isAuthenticated) {
+  if (authLoading) {
+    // show a neutral loader so we don't mis-redirect
+    return (
+      <div className="min-h-screen grid place-items-center text-gray-500">
+        Checking session…
+      </div>
+    );
+  }
+
+  if (!user) {
     return <Navigate to="/admin/login" replace state={{ from: location }} />;
   }
-  return <Outlet />;
+
+  return children;
 }

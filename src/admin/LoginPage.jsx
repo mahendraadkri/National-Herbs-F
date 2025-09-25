@@ -1,5 +1,6 @@
+// src/admin/LoginPage.jsx
 import React, { useState } from "react";
-import { useLocation, useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
 import {
   FaEnvelope,
@@ -13,8 +14,6 @@ import leafIcon from "../assets/logo-icon.png";
 export default function LoginPage() {
   const { login } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
-  const from = location.state?.from?.pathname || "/admin";
 
   const [form, setForm] = useState({
     email: "",
@@ -30,10 +29,12 @@ export default function LoginPage() {
     setErr("");
     setLoading(true);
     try {
-      await login({ email: form.email, password: form.password });
-      navigate(from, { replace: true });
+      await login({ email: form.email, password: form.password, remember: form.remember });
+
+      // Always land on Dashboard (index route at /admin)
+      navigate("/admin", { replace: true });
     } catch (e) {
-      setErr(e.message || "Login failed");
+      setErr(e?.message || "Login failed");
     } finally {
       setLoading(false);
     }
@@ -74,7 +75,10 @@ export default function LoginPage() {
             </p>
 
             {err && (
-              <div className="mt-4 rounded-lg bg-red-50 text-red-700 px-4 py-3">
+              <div
+                role="alert"
+                className="mt-4 rounded-lg bg-red-50 text-red-700 px-4 py-3"
+              >
                 {err}
               </div>
             )}
@@ -89,13 +93,13 @@ export default function LoginPage() {
                   </span>
                   <input
                     type="email"
-                    className="w-full rounded-xl border border-gray-200 pl-10 pr-3 py-3
-                               focus:outline-none focus:ring-2 focus:ring-green-600"
+                    className="w-full rounded-xl border border-gray-200 pl-10 pr-3 py-3 focus:outline-none focus:ring-2 focus:ring-green-600"
                     value={form.email}
                     onChange={(e) =>
                       setForm((f) => ({ ...f, email: e.target.value }))
                     }
                     placeholder="admin@example.com"
+                    autoComplete="username"
                     required
                   />
                 </div>
@@ -110,13 +114,13 @@ export default function LoginPage() {
                   </span>
                   <input
                     type={showPw ? "text" : "password"}
-                    className="w-full rounded-xl border border-gray-200 pl-10 pr-10 py-3
-                               focus:outline-none focus:ring-2 focus:ring-green-600"
+                    className="w-full rounded-xl border border-gray-200 pl-10 pr-10 py-3 focus:outline-none focus:ring-2 focus:ring-green-600"
                     value={form.password}
                     onChange={(e) =>
                       setForm((f) => ({ ...f, password: e.target.value }))
                     }
                     placeholder="••••••••"
+                    autoComplete="current-password"
                     required
                   />
                   <button
@@ -130,12 +134,26 @@ export default function LoginPage() {
                 </div>
               </div>
 
+              {/* Remember me (optional) */}
+              <div className="flex items-center justify-between">
+                <label className="inline-flex items-center gap-2 text-sm text-gray-700">
+                  <input
+                    type="checkbox"
+                    className="rounded border-gray-300"
+                    checked={form.remember}
+                    onChange={(e) =>
+                      setForm((f) => ({ ...f, remember: e.target.checked }))
+                    }
+                  />
+                  Remember me
+                </label>
+              </div>
+
               {/* Submit */}
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full rounded-xl bg-green-600 text-white font-semibold py-3
-                           hover:bg-green-700 transition disabled:opacity-60 disabled:cursor-not-allowed"
+                className="w-full rounded-xl bg-green-600 text-white font-semibold py-3 hover:bg-green-700 transition disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 {loading ? "Signing in..." : "Sign In"}
               </button>

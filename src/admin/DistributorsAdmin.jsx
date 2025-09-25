@@ -1,86 +1,98 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState, useRef } from "react";
 import { FaPlus, FaEdit, FaTrash, FaSearch } from "react-icons/fa";
-
-const REGIONS = ["Bagmati", "Gandaki", "Koshi", "Madhesh", "Lumbini", "Karnali", "Sudurpashchim"];
-
-// Demo data (replace with API later)
-const initialRows = [
-  {
-    id: 1,
-    name: "Green Valley Traders",
-    city: "Kathmandu",
-    region: "Bagmati",
-    address: "Nayabazar, Sorakhutte, Kathmandu",
-    phone: "+977-1-591457",
-    email: "sales@greenvalley.com",
-    map: "https://maps.google.com/?q=Nayabazar,Sorakhutte,Kathmandu",
-  },
-  {
-    id: 2,
-    name: "Herbal House Lalitpur",
-    city: "Lalitpur",
-    region: "Bagmati",
-    address: "Kupondole-2, Lalitpur",
-    phone: "+977-1-554-2211",
-    email: "hello@herbalhouse.com",
-    map: "https://maps.google.com/?q=Kupondole-2,Lalitpur",
-  },
-  {
-    id: 3,
-    name: "Everest Naturals",
-    city: "Pokhara",
-    region: "Gandaki",
-    address: "Amarsingh Chowk, Pokhara",
-    phone: "+977-61-520520",
-    email: "contact@everestnaturals.com",
-    map: "https://maps.google.com/?q=Amarsingh+Chowk,Pokhara",
-  },
-];
+import { api } from "../api/client"; // <-- must send Sanctum token/cookies
 
 export default function DistributorsAdmin() {
-  const [rows, setRows] = useState(initialRows);
+  const [rows, setRows] = useState([]);
   const [query, setQuery] = useState("");
-  const [region, setRegion] = useState("All");
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState(blankForm());
   const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [err, setErr] = useState("");
+
+  // flash message (3.5s)
+  const [flash, setFlash] = useState({ show: false, type: "success", message: "" });
+  const flashTimer = useRef(null);
+  const showFlash = (message, type = "success", duration = 3500) => {
+    if (flashTimer.current) clearTimeout(flashTimer.current);
+    setFlash({ show: true, type, message });
+    flashTimer.current = setTimeout(() => setFlash((f) => ({ ...f, show: false })), duration);
+  };
 
   function blankForm() {
     return {
       id: null,
       name: "",
-      city: "",
-      region: "",
-      address: "",
       phone: "",
       email: "",
-      map: "",
+      // location builder fields
+      city: "",
+      zip: "",
+      location: "", // extra detail (street/area/landmark). We'll compose the final location sent to API.
     };
   }
 
+  // helper: compose final location string that we save to backend
+  const composeLocation = (city, zip, extra) => {
+    const c = (city || "").trim();
+    const z = (zip || "").trim();
+    const e = (extra || "").trim();
+    if (!c && !z && !e) return "";
+    const left = `${c}${z ? ` ${z}` : ""}`.trim();
+    return left && e ? `${left} — ${e}` : left || e; // "City 44600 — Extra"
+  };
+
+  // Load from Laravel
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      try {
+        setLoading(true);
+        const { data } = await api.get("/api/distributors");
+        if (alive) setRows(Array.isArray(data) ? data : []);
+      } catch (e) {
+        const msg = e?.response?.data?.message || e.message || "Failed to load distributors";
+        if (alive) {
+          setErr(msg);
+          showFlash(msg, "error");
+        }
+      } finally {
+        if (alive) setLoading(false);
+      }
+    })();
+    return () => {
+      alive = false;
+      if (flashTimer.current) clearTimeout(flashTimer.current);
+    };
+  }, []);
+
+  // Search filter
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     return rows.filter((r) => {
-      const regionOk = region === "All" || r.region === region;
-      const textOk =
-        !q ||
-        r.name.toLowerCase().includes(q) ||
-        r.city.toLowerCase().includes(q) ||
-        r.address.toLowerCase().includes(q) ||
-        r.email.toLowerCase().includes(q) ||
-        r.phone.toLowerCase().includes(q);
-      return regionOk && textOk;
+      const name = (r.name || "").toLowerCase();
+      const loc = (r.location || "").toLowerCase();
+      const phone = (r.phone || "").toLowerCase();
+      const email = (r.email || "").toLowerCase();
+      return !q || name.includes(q) || loc.includes(q) || phone.includes(q) || email.includes(q);
     });
-  }, [rows, query, region]);
+  }, [rows, query]);
 
+  // FE validation consistent with backend (+ city/zip rules)
   const validate = () => {
     const e = {};
     if (!form.name.trim()) e.name = "Name is required";
     if (!form.city.trim()) e.city = "City is required";
-    if (!form.region.trim()) e.region = "Region is required";
-    if (!form.address.trim()) e.address = "Address is required";
-    if (form.email && !/^\S+@\S+\.\S+$/.test(form.email)) e.email = "Invalid email";
-    if (form.phone && !/^\+?[-\d\s()]{7,}$/.test(form.phone)) e.phone = "Invalid phone";
+    if (form.zip && !/^\d{5}$/.test(form.zip.trim())) e.zip = "ZIP should be 5 digits";
+    // Compose final location for validation against backend requirement
+    const finalLocation = composeLocation(form.city, form.zip, form.location);
+    if (!finalLocation) e.location = "Location is required (City is mandatory)";
+    if (!form.phone.trim()) e.phone = "Phone is required";
+    if (!/^(98|97)[0-9]{8}$/.test(form.phone.trim()))
+      e.phone = "Phone must be a 10-digit Nepali mobile starting with 98 or 97";
+    if (!form.email.trim()) e.email = "Email is required";
+    else if (!/^\S+@\S+\.\S+$/.test(form.email.trim())) e.email = "Invalid email";
     return e;
   };
 
@@ -90,41 +102,125 @@ export default function DistributorsAdmin() {
     setShowForm(true);
   };
 
+  // Attempt to parse existing "location" into { city, zip, extra }
+  const parseExistingLocation = (loc = "") => {
+    const out = { city: "", zip: "", extra: "" };
+    if (!loc) return out;
+    // Format we expect to support: "City 44600 — Extra", "City-Extra", "City, Extra", or just "City"
+    const parts = String(loc).split("—");
+    const left = parts[0].trim(); // "City 44600" or "City, Extra-left"
+    const extra = parts.slice(1).join("—").trim(); // everything after em dash
+    // extract city + zip from left. City may contain commas/spaces.
+    const m = left.match(/^(.+?)[,\s-]*(\d{5})?$/); // capture city + optional 5-digit zip
+    if (m) {
+      out.city = (m[1] || "").trim().replace(/[,-]$/, "").trim();
+      out.zip = (m[2] || "").trim();
+    } else {
+      out.city = left;
+    }
+    // if no explicit em-dash, try to split by comma for extra details
+    if (!extra && left.includes(",")) {
+      const [c, ...rest] = left.split(",");
+      out.city = (c || "").trim();
+      out.extra = rest.join(",").trim();
+    } else {
+      out.extra = extra;
+    }
+    return out;
+  };
+
   const openEdit = (row) => {
-    setForm(row);
+    const parsed = parseExistingLocation(row.location || "");
+    setForm({
+      id: row.id,
+      name: row.name || "",
+      phone: row.phone || "",
+      email: row.email || "",
+      city: parsed.city || "",
+      zip: parsed.zip || "",
+      location: parsed.extra || "",
+    });
     setErrors({});
     setShowForm(true);
   };
 
-  const onDelete = (id) => {
-    if (window.confirm("Delete this distributor?")) {
+  const onDelete = async (id) => {
+    if (!window.confirm("Delete this distributor?")) return;
+    try {
+      await api.delete(`/api/distributors/${id}`);
       setRows((prev) => prev.filter((r) => r.id !== id));
+      showFlash("Distributor deleted successfully.", "success");
+    } catch (e) {
+      const msg = e?.response?.data?.message || e.message || "Delete failed";
+      showFlash(msg, "error");
     }
   };
 
-  const onSubmit = (e) => {
+  const onSubmit = async (e) => {
     e.preventDefault();
     const eMap = validate();
     setErrors(eMap);
     if (Object.keys(eMap).length) return;
 
-    if (form.id) {
-      // update
-      setRows((prev) => prev.map((r) => (r.id === form.id ? form : r)));
-    } else {
-      // create
-      setRows((prev) => [...prev, { ...form, id: Date.now() }]);
+    const finalLocation = composeLocation(form.city, form.zip, form.location);
+
+    try {
+      if (form.id) {
+        // UPDATE (auth required) — using POST + _method=PUT
+        const payload = {
+          _method: "PUT",
+          name: form.name.trim(),
+          location: finalLocation,
+          phone: form.phone.trim(),
+          email: form.email.trim(),
+        };
+        const { data } = await api.post(`/api/distributors/${form.id}`, payload);
+        const updated = data?.data ?? { ...payload, id: form.id };
+        setRows((prev) => prev.map((r) => (r.id === form.id ? { ...r, ...updated } : r)));
+        showFlash("Distributor updated successfully.", "success");
+      } else {
+        // CREATE (auth required)
+        const payload = {
+          name: form.name.trim(),
+          location: finalLocation,
+          phone: form.phone.trim(),
+          email: form.email.trim(),
+        };
+        const { data } = await api.post(`/api/distributors`, payload);
+        const created = data?.data ?? payload;
+        setRows((prev) => [...prev, created]);
+        showFlash("Distributor created successfully.", "success");
+      }
+      setShowForm(false);
+    } catch (e) {
+      const resp = e?.response?.data;
+      if (resp?.errors) {
+        const fieldErrors = {};
+        Object.entries(resp.errors).forEach(([k, v]) => (fieldErrors[k] = Array.isArray(v) ? v[0] : String(v)));
+        setErrors(fieldErrors);
+      }
+      const msg = resp?.message || e.message || "Save failed";
+      showFlash(msg, "error");
     }
-    setShowForm(false);
   };
 
+  // live preview string for final location
+  const locationPreview = composeLocation(form.city, form.zip, form.location);
+
   return (
-    <div className="space-y-6">
-      {/* Header / Controls */}
+    <div className="space-y-6 relative">
+      {/* Flash */}
+      <Flash show={flash.show} type={flash.type} onClose={() => setFlash((f) => ({ ...f, show: false }))}>
+        {flash.message}
+      </Flash>
+
+      {/* Header */}
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-green-900">Manage Distributors</h1>
-          <p className="text-gray-600 text-sm">Add, edit, and remove distributors across regions.</p>
+          <p className="text-gray-600 text-sm">Add, edit, and remove distributors.</p>
+          {loading && <p className="text-xs text-gray-500 mt-1">Loading…</p>}
+          {err && <p className="text-xs text-red-600 mt-1">{err}</p>}
         </div>
 
         <div className="flex flex-col sm:flex-row gap-3">
@@ -135,23 +231,10 @@ export default function DistributorsAdmin() {
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search name, city, address…"
+              placeholder="Search name, location, phone, email…"
               className="pl-10 pr-3 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-green-600"
             />
           </div>
-
-          <select
-            value={region}
-            onChange={(e) => setRegion(e.target.value)}
-            className="py-2 px-3 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-green-600"
-          >
-            <option value="All">All Regions</option>
-            {REGIONS.map((r) => (
-              <option key={r} value={r}>
-                {r}
-              </option>
-            ))}
-          </select>
 
           <button
             onClick={openAdd}
@@ -168,11 +251,9 @@ export default function DistributorsAdmin() {
           <thead className="bg-gray-50 text-left text-gray-600 font-semibold">
             <tr>
               <th className="px-6 py-3">Name</th>
-              <th className="px-6 py-3">City</th>
-              <th className="px-6 py-3">Region</th>
               <th className="px-6 py-3">Phone</th>
               <th className="px-6 py-3">Email</th>
-              <th className="px-6 py-3">Address</th>
+              <th className="px-6 py-3">Location</th>
               <th className="px-6 py-3 text-right">Actions</th>
             </tr>
           </thead>
@@ -180,11 +261,9 @@ export default function DistributorsAdmin() {
             {filtered.map((r) => (
               <tr key={r.id} className="hover:bg-gray-50">
                 <td className="px-6 py-3 font-medium">{r.name}</td>
-                <td className="px-6 py-3">{r.city}</td>
-                <td className="px-6 py-3">{r.region}</td>
                 <td className="px-6 py-3">
                   {r.phone ? (
-                    <a className="text-green-700 hover:underline" href={`tel:${r.phone.replace(/\s/g, "")}`}>
+                    <a className="text-green-700 hover:underline" href={`tel:${r.phone}`}>
                       {r.phone}
                     </a>
                   ) : (
@@ -200,7 +279,7 @@ export default function DistributorsAdmin() {
                     "—"
                   )}
                 </td>
-                <td className="px-6 py-3">{r.address}</td>
+                <td className="px-6 py-3">{r.location || "—"}</td>
                 <td className="px-6 py-3 text-right space-x-2">
                   <button
                     onClick={() => openEdit(r)}
@@ -220,7 +299,7 @@ export default function DistributorsAdmin() {
 
             {filtered.length === 0 && (
               <tr>
-                <td colSpan={7} className="px-6 py-6 text-center text-gray-500">
+                <td colSpan={5} className="px-6 py-6 text-center text-gray-500">
                   No distributors found.
                 </td>
               </tr>
@@ -245,62 +324,57 @@ export default function DistributorsAdmin() {
                 required
               />
               <Field
-                label="City"
-                value={form.city}
-                onChange={(v) => setForm((f) => ({ ...f, city: v }))}
-                error={errors.city}
-                required
-              />
-              <div>
-                <label className="text-sm text-gray-700">Region</label>
-                <select
-                  value={form.region}
-                  onChange={(e) => setForm((f) => ({ ...f, region: e.target.value }))}
-                  className={`mt-1 w-full rounded-lg border px-4 py-2 focus:outline-none ${
-                    errors.region
-                      ? "border-red-500 focus:ring-2 focus:ring-red-500"
-                      : "border-gray-200 focus:ring-2 focus:ring-green-600"
-                  }`}
-                >
-                  <option value="">Select region</option>
-                  {REGIONS.map((r) => (
-                    <option key={r} value={r}>
-                      {r}
-                    </option>
-                  ))}
-                </select>
-                {errors.region && <p className="text-red-600 text-sm mt-1">{errors.region}</p>}
-              </div>
-              <Field
-                label="Phone"
+                label="Phone (e.g., 9812345678)"
                 value={form.phone}
                 onChange={(v) => setForm((f) => ({ ...f, phone: v }))}
                 error={errors.phone}
-                placeholder="+977-1-xxxxx"
+                required
               />
               <Field
                 label="Email"
                 value={form.email}
                 onChange={(v) => setForm((f) => ({ ...f, email: v }))}
                 error={errors.email}
-                placeholder="name@example.com"
+                required
               />
+
+              {/* City + ZIP */}
+              <Field
+                label="City"
+                value={form.city}
+                onChange={(v) => setForm((f) => ({ ...f, city: v }))}
+                error={errors.city}
+                placeholder="e.g., Kathmandu"
+                required
+              />
+              <Field
+                label="ZIP (optional)"
+                value={form.zip}
+                onChange={(v) => setForm((f) => ({ ...f, zip: v }))}
+                error={errors.zip}
+                placeholder="e.g., 44600"
+              />
+
+              {/* Extra location details */}
               <div className="md:col-span-2">
                 <Field
-                  label="Address"
-                  value={form.address}
-                  onChange={(v) => setForm((f) => ({ ...f, address: v }))}
-                  error={errors.address}
-                  required
+                  label="Extra location details (street/area/landmark)"
+                  value={form.location}
+                  onChange={(v) => setForm((f) => ({ ...f, location: v }))}
+                  error={errors.location}
+                  placeholder="e.g., Nayabazar, Sorakhutte"
                 />
-              </div>
-              <div className="md:col-span-2">
-                <Field
-                  label="Google Maps URL (optional)"
-                  value={form.map}
-                  onChange={(v) => setForm((f) => ({ ...f, map: v }))}
-                  placeholder="https://maps.google.com/?q=..."
-                />
+                {/* Live preview of final location format */}
+                <p className="text-xs text-gray-600 mt-2">
+                  <span className="font-medium">Final location to be saved: </span>
+                  <span className="font-mono">
+                    {locationPreview || "— (enter city and optional ZIP/extra details)"}
+                  </span>
+                </p>
+                <p className="text-[11px] text-gray-500">
+                  Format: <span className="font-mono">City[ SPACE ZIP][ — Extra]</span> (example:{" "}
+                  <span className="font-mono">Kathmandu 44600 — Nayabazar, Sorakhutte</span>)
+                </p>
               </div>
 
               <div className="md:col-span-2 flex justify-end gap-3 pt-2">
@@ -326,7 +400,35 @@ export default function DistributorsAdmin() {
   );
 }
 
-/* ---------- small controlled input field ---------- */
+/* ---------- Flash (top) ---------- */
+function Flash({ show, type = "success", children, onClose }) {
+  if (!show) return null;
+  const isSuccess = type === "success";
+  const wrap =
+    "fixed top-4 left-1/2 -translate-x-1/2 z-[60] w-[92%] max-w-xl shadow-lg rounded-xl border px-4 py-3 flex items-start gap-3";
+  const cls = isSuccess
+    ? "bg-green-50 border-green-200 text-green-800"
+    : "bg-red-50 border-red-200 text-red-800";
+
+  return (
+    <div
+      className={`${wrap} ${cls}`}
+      role={isSuccess ? "status" : "alert"}
+      aria-live={isSuccess ? "polite" : "assertive"}
+    >
+      <div className="text-sm flex-1">{children}</div>
+      <button
+        onClick={onClose}
+        className="text-xs font-medium underline decoration-dotted hover:opacity-80"
+        aria-label="Dismiss notification"
+      >
+        X
+      </button>
+    </div>
+  );
+}
+
+/* ---------- Field ---------- */
 function Field({ label, value, onChange, error, required = false, placeholder = "" }) {
   return (
     <div>
@@ -338,9 +440,7 @@ function Field({ label, value, onChange, error, required = false, placeholder = 
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
         className={`mt-1 w-full rounded-lg border px-4 py-2 focus:outline-none ${
-          error
-            ? "border-red-500 focus:ring-2 focus:ring-red-500"
-            : "border-gray-200 focus:ring-2 focus:ring-green-600"
+          error ? "border-red-500 focus:ring-2 focus:ring-red-500" : "border-gray-200 focus:ring-2 focus:ring-green-600"
         }`}
       />
       {error && <p className="text-red-600 text-sm mt-1">{error}</p>}

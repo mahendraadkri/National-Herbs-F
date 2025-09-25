@@ -1,13 +1,14 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import { FaBox, FaUsers, FaBlog, FaChartLine } from "react-icons/fa";
 
 export default function Dashboard() {
   // These numbers would normally come from your backend API
   const stats = [
-    { id: 1, label: "Products", value: 128, icon: <FaBox /> },
-    { id: 2, label: "Distributors", value: 42, icon: <FaUsers /> },
-    { id: 3, label: "Blog Posts", value: 16, icon: <FaBlog /> },
-    { id: 4, label: "Monthly Sales", value: "NPR 3.2M", icon: <FaChartLine /> },
+    { id: 1, label: "Products", value: 128, icon: <FaBox aria-hidden="true" /> },
+    { id: 2, label: "Distributors", value: 42, icon: <FaUsers aria-hidden="true" /> },
+    { id: 3, label: "Blog Posts", value: 16, icon: <FaBlog aria-hidden="true" /> },
+    { id: 4, label: "Monthly Sales", value: "NPR 3.2M", icon: <FaChartLine aria-hidden="true" /> },
   ];
 
   return (
@@ -62,12 +63,13 @@ export default function Dashboard() {
 
 function ShortcutCard({ title, desc, href }) {
   return (
-    <a
-      href={href}
-      className="rounded-2xl bg-gradient-to-br from-green-50 to-white ring-1 ring-green-100 shadow-sm p-6 block hover:shadow-md hover:bg-green-50 transition"
+    <Link
+      to={href}
+      className="rounded-2xl bg-gradient-to-br from-green-50 to-white ring-1 ring-green-100 shadow-sm p-6 block hover:shadow-md hover:bg-green-50 transition focus:outline-none focus:ring-2 focus:ring-green-600"
+      aria-label={title}
     >
       <h3 className="font-semibold text-green-900">{title}</h3>
       <p className="text-gray-600 text-sm mt-1">{desc}</p>
-    </a>
+    </Link>
   );
 }

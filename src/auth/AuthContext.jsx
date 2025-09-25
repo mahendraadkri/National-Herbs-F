@@ -2,37 +2,48 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 
 const AuthCtx = createContext(null);
+export const useAuth = () => useContext(AuthCtx);
 
 export function AuthProvider({ children }) {
-  const [token, setToken] = useState(() => localStorage.getItem("adm_token"));
-  const isAuthenticated = Boolean(token);
+  const [user, setUser] = useState(null);
+  const [authLoading, setAuthLoading] = useState(true);
 
-  const login = async ({ email, password }) => {
-    // TODO: replace with real API call
-    if (!email || !password) throw new Error("Email & password required");
-    // DEMO: accept anything, create a dummy token
-    const t = `demo-${Date.now()}`;
-    localStorage.setItem("adm_token", t);
-    setToken(t);
-    return true;
+  // Rehydrate on first mount
+  useEffect(() => {
+    const raw = localStorage.getItem("nh_auth");
+    if (raw) {
+      try {
+        const parsed = JSON.parse(raw);
+        setUser(parsed);
+      } catch {}
+    }
+    setAuthLoading(false);
+  }, []);
+
+  // Example login that persists. Replace with your real API call.
+  const login = async ({ email, password, remember }) => {
+    // call API -> get { token, profile } etc.
+    // const resp = await api.post('/login', { email, password });
+    const resp = { token: "demo-token", profile: { email } }; // mock
+    const session = { token: resp.token, profile: resp.profile, ts: Date.now() };
+
+    // Persist. If "remember" is false, you can use sessionStorage instead.
+    if (remember) {
+      localStorage.setItem("nh_auth", JSON.stringify(session));
+    } else {
+      sessionStorage.setItem("nh_auth", JSON.stringify(session));
+    }
+
+    setUser(session);
+    return session;
   };
 
   const logout = () => {
-    localStorage.removeItem("adm_token");
-    setToken(null);
+    localStorage.removeItem("nh_auth");
+    sessionStorage.removeItem("nh_auth");
+    setUser(null);
   };
 
-  useEffect(() => {
-    // Could validate token on mount here if needed
-  }, []);
-
-  return (
-    <AuthCtx.Provider value={{ isAuthenticated, token, login, logout }}>
-      {children}
-    </AuthCtx.Provider>
-  );
-}
-
-export function useAuth() {
-  return useContext(AuthCtx);
+  const value = { user, authLoading, login, logout };
+  return <AuthCtx.Provider value={value}>{children}</AuthCtx.Provider>;
 }
