@@ -1,7 +1,8 @@
 // src/admin/AdminLayout.jsx
 import React from "react";
-import { NavLink, Outlet, useNavigate } from "react-router-dom"; // ⬅ add useNavigate
+import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
+import logo from "../assets/logo-icon.png";
 
 export default function AdminLayout() {
   const { logout } = useAuth();
@@ -13,9 +14,9 @@ export default function AdminLayout() {
 
   const onLogout = async () => {
     try {
-      await logout(); // clear auth
+      await logout();
     } finally {
-      navigate("/", { replace: true }); // go home no matter what
+      navigate("/", { replace: true });
     }
   };
 
@@ -23,7 +24,12 @@ export default function AdminLayout() {
     <div className="min-h-screen grid grid-cols-12 bg-gray-50">
       {/* Sidebar */}
       <aside className="col-span-12 md:col-span-3 lg:col-span-2 border-r bg-white p-4">
-        <h2 className="font-bold text-green-800 mb-4">Admin</h2>
+        {/* Logo & brand */}
+        <div className="flex items-center gap-2 mb-6">
+          <img src={logo} alt="National Herbs" className="w-8 h-8" />
+          <span className="font-bold text-green-800">National Herbs Admin</span>
+        </div>
+
         <nav className="space-y-2">
           <NavLink
             to="/admin"
