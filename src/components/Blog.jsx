@@ -118,10 +118,10 @@ export default function Blog() {
                       <FaCalendarAlt className="text-green-600" />{" "}
                       {formatDate(post.created_at)}
                     </span>
-                    <span className="flex items-center gap-1">
+                    {/* <span className="flex items-center gap-1">
                       <FaUserAlt className="text-green-600" />{" "}
                       {post.blog_by || "National Herbs Team"}
-                    </span>
+                    </span> */}
                   </div>
 
                   <button
@@ -188,7 +188,7 @@ function BlogModal({ post, onClose }) {
               onError={(e) => (e.currentTarget.src = fallbackImg)}
             />
           </div>
-          
+
           <div className="p-6">
             {/* Close button */}
             <button
@@ -214,10 +214,10 @@ function BlogModal({ post, onClose }) {
                 <FaCalendarAlt className="text-green-600" />
                 {formatDate(post.created_at)}
               </span>
-              <span className="inline-flex items-center gap-1">
+              {/* <span className="inline-flex items-center gap-1">
                 <FaUserAlt className="text-green-600" />
                 {post.blog_by || "National Herbs Team"}
-              </span>
+              </span> */}
             </div>
 
             {/* Content */}

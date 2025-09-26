@@ -15,7 +15,7 @@ const Home = () => {
       <Navbar />
       <main className="pt-20 md:pt-24 lg:pt-28">
         <Hero />
-        <TrendingProducts />
+        {/* <TrendingProducts /> */}
         <About />
         <Banner />
         <BannerCarousel />

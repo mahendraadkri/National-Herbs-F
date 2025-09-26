@@ -108,11 +108,12 @@ export default function Contact() {
         <div className="my-12 rounded-2xl overflow-hidden ring-1 ring-gray-100 shadow-sm bg-white">
           <iframe
             title="National Herbs Location"
-            src="https://www.google.com/maps?q=Nayabazar,Sorakhutte,Kathmandu&output=embed"
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3532.XXXXXX!2d85.XXXXXX!3d27.XXXXXX!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39eb190xxxxxx%3A0xyyyyyyyy!2sNayabazar%2C%20Sorakhutte%2C%20Kathmandu!5e0!3m2!1sen!2snp!4vXXXXXXXXXXXX" 
             className="w-full h-80"
             loading="lazy"
           />
         </div>
+
 
         {/* Info + Form */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -121,21 +122,21 @@ export default function Contact() {
             <InfoCard
               icon={<FaPhoneAlt />}
               title="Phone"
-              lines={["+977 51-591457", "+977 51-591047"]}
-              hrefs={["tel:+97751591457", "tel:+97751591047"]}
+              lines={["+977- + 977-1-4954669", "+ 977-9803020452"]}
+              hrefs={["tel:+ 97714954669", "tel:+ 9779803020452"]}
             />
             <InfoCard
               icon={<FaEnvelope />}
               title="Email"
-              lines={["info@nationalherbs.com"]}
-              hrefs={["mailto:info@nationalherbs.com"]}
+              lines={["info@nationalherbo.com"]}
+              hrefs={["mailto:info@nationalherbo.com"]}
             />
             <InfoCard
               icon={<FaMapMarkerAlt />}
               title="Address"
-              lines={["Nayabazar, Sorakhutte", "Kathmandu, Nepal"]}
+              lines={["Samakhusi, kathmandu", "Kathmandu, Nepal"]}
               hrefs={[
-                "https://maps.google.com/?q=Nayabazar,Sorakhutte,Kathmandu",
+                 "https://maps.google.com/?q=Nayabazar,Sorakhutte,Kathmandu"
               ]}
               external
             />
