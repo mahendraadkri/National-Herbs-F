@@ -14,18 +14,18 @@ export default function ProductGrid({ products }) {
   return (
     <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
       {products.map((p) => (
-        <ProductCard key={p.id} product={p} />
+        <ProductCard key={p.slug || p.id} product={p} />
       ))}
     </div>
   );
 }
 
 function ProductCard({ product }) {
-  const { id, name, price, rating, image, badge } = product;
+  const { slug, name, price, rating, image, badge } = product;
 
   return (
     <article className="bg-white rounded-2xl shadow-sm hover:shadow-md transition overflow-hidden">
-      <Link to={`/products/${id}`} className="block relative h-56 w-full overflow-hidden">
+      <Link to={`/products/${slug}`} className="block relative h-56 w-full overflow-hidden">
         {badge && (
           <span className="absolute left-3 top-3 z-10 rounded-full bg-green-600 text-white text-xs font-semibold px-3 py-1">
             {badge}
@@ -39,24 +39,22 @@ function ProductCard({ product }) {
       </Link>
 
       <div className="p-5">
-        <Link to={`/products/${id}`}>
+        <Link to={`/products/${slug}`}>
           <h3 className="text-green-900 font-semibold hover:text-green-700 transition">
             {name}
           </h3>
         </Link>
 
-        <div className="mt-2 flex items-center justify-between">
+      <div className="mt-2 flex items-center justify-between">
           <div className="flex items-center gap-1 text-yellow-500">
             <FaStar /><span className="text-sm text-gray-700">{rating}</span>
           </div>
           <div className="text-lg font-semibold text-green-800">Rs. {price}</div>
         </div>
 
-        {/* View Details button */}
         <Link
-          to={`/products/${id}`}
-          className="mt-4 w-full inline-flex justify-center rounded-full bg-green-600 text-white font-semibold py-2.5
-                     hover:bg-green-700 transition"
+          to={`/products/${slug}`}
+          className="mt-4 w-full inline-flex justify-center rounded-full bg-green-600 text-white font-semibold py-2.5 hover:bg-green-700 transition"
         >
           View Details
         </Link>

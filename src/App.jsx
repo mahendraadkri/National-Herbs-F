@@ -21,6 +21,9 @@ import Dashboard from "./admin/Dashboard";
 import ProductsAdmin from "./admin/ProductsAdmin";
 import DistributorsAdmin from "./admin/DistributorsAdmin";
 import BlogAdmin from "./admin/BlogAdmin";
+import CategoriesAdmin from "./admin/CategoriesAdmin";
+import ContactUs from "./admin/ContactUs";
+import OurteamAdmin from "./admin/OurteamAdmin";
 
 export default function App() {
   return (
@@ -32,7 +35,7 @@ export default function App() {
         <Route path="/blog" element={<BlogPage />} />
         <Route path="/distributors" element={<DistributorsPage />} />
         <Route path="/products" element={<ProductsPage />} />
-        <Route path="/products/:id" element={<ProductDetails />} />
+        <Route path="/products/:slug" element={<ProductDetails />} />
         <Route path="/contact" element={<ContactPage />} />
 
         {/* Admin login (unprotected) */}
@@ -49,8 +52,11 @@ export default function App() {
         >
           {/* /admin -> Dashboard */}
           <Route index element={<Dashboard />} />
+          <Route path="categories" element={<CategoriesAdmin />} />
           <Route path="products" element={<ProductsAdmin />} />
           <Route path="distributors" element={<DistributorsAdmin />} />
+          <Route path="contactus" element={<ContactUs />} />
+          <Route path="ourteams" element={<OurteamAdmin />} />
           <Route path="blogs" element={<BlogAdmin />} />
         </Route>
 
