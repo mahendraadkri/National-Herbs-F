@@ -19,13 +19,13 @@ function Navbar() {
       <div className="bg-green-600 text-white text-sm flex justify-center px-6 py-2">
         <div className="flex items-center space-x-6">
           <span className="flex items-center space-x-2">
-            <FaPhoneAlt /> <span>+977 51-591457 / 591047</span>
+            <FaPhoneAlt /> <span>+977 980-3020452</span>
           </span>
           <span className="flex items-center space-x-2">
-            <FaEnvelope /> <span>info@nationalherbs.com</span>
+            <FaEnvelope /> <span>info@nationalherbo.com</span>
           </span>
           <span className="flex items-center space-x-2">
-            <FaMapMarkerAlt /> <span>Nayabazar, Sorakhutte, Kathmandu</span>
+            <FaMapMarkerAlt /> <span>Samakhusi, kathmandu,Nepal</span>
           </span>
         </div>
       </div>

@@ -29,11 +29,12 @@ export default function Footer() {
         {/* Contact */}
         <div>
           <h3 className="text-yellow-400 font-semibold mb-2">Phone Number</h3>
-          <p>+91-9829885383</p>
+          <p>+977 9829885383</p>
           <h3 className="text-yellow-400 font-semibold mt-4 mb-2">
             Email Address
           </h3>
           <p>info@nationalherbo.com</p>
+          <p> info@nationalherns.com</p>
         </div>
 
         {/* Socials */}
