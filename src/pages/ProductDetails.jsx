@@ -71,15 +71,6 @@ export default function ProductDetails() {
   return (
     <section className="pt-24 md:pt-28 lg:pt-32 bg-gray-50">
       <div className="max-w-7xl mx-auto px-6 py-8">
-        {/* Breadcrumb / Back */}
-        <div className="mb-6 flex items-center gap-3 text-sm">
-          <Link to="/products" className="text-green-700 hover:underline font-medium">
-            ← Back to Products
-          </Link>
-          <span className="text-gray-300">|</span>
-          <span className="text-gray-500 truncate">{detail.name}</span>
-        </div>
-
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           {/* Images */}
           <div className="flex flex-col items-center sm:items-start">
@@ -161,11 +152,6 @@ export default function ProductDetails() {
               >
                 ← Back to Products
               </Link>
-            </div>
-
-            {/* Meta */}
-            <div className="mt-8 text-xs text-gray-400">
-              SKU: {detail?.slug || slug}
             </div>
           </div>
         </div>

@@ -8,27 +8,27 @@ import ProductGrid from "./ProductGrid";
 const API_BASE = `${import.meta.env.VITE_API_URL}/api`;
 
 const COLLECTIONS = [
-  {
-    id: "c1",
-    title: "Glow Essentials",
-    subtitle: "Radiance-boosting skincare",
-    image: "/assets/collections/glow.jpg",
-    color: "from-amber-100 to-orange-50",
-  },
-  {
-    id: "c2",
-    title: "Clean Hair Care",
-    subtitle: "Nourishing, sulfate-free",
-    image: "/assets/collections/hair.jpg",
-    color: "from-indigo-100 to-sky-50",
-  },
-  {
-    id: "c3",
-    title: "Morning Wellness",
-    subtitle: "Teas & seeds to start right",
-    image: "/assets/collections/wellness.jpg",
-    color: "from-emerald-100 to-green-50",
-  },
+  // {
+  //   id: "c1",
+  //   title: "Glow Essentials",
+  //   subtitle: "Radiance-boosting skincare",
+  //   image: "/assets/collections/glow.jpg",
+  //   color: "from-amber-100 to-orange-50",
+  // },
+  // {
+  //   id: "c2",
+  //   title: "Clean Hair Care",
+  //   subtitle: "Nourishing, sulfate-free",
+  //   image: "/assets/collections/hair.jpg",
+  //   color: "from-indigo-100 to-sky-50",
+  // },
+  // {
+  //   id: "c3",
+  //   title: "Morning Wellness",
+  //   subtitle: "Teas & seeds to start right",
+  //   image: "/assets/collections/wellness.jpg",
+  //   color: "from-emerald-100 to-green-50",
+  // },
 ];
 
 export default function Products() {
@@ -158,7 +158,7 @@ export default function Products() {
       </div>
 
       {/* Featured Collections Row */}
-      <FeaturedRow items={COLLECTIONS} />
+      {/* <FeaturedRow items={COLLECTIONS} /> */}
 
       {/* Product Grid */}
       {loading ? (

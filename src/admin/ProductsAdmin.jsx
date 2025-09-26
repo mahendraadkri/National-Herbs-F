@@ -1,3 +1,4 @@
+// productAdmin.jsx
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { FaPlus, FaEdit, FaTrash, FaSearch, FaImages } from "react-icons/fa";
 import { api } from "../api/client";
@@ -284,14 +285,37 @@ export default function ProductsAdmin() {
     );
   }, [rows, query]);
 
+  /* ---------- Live inline rule: OldPrice must be > Price (create & edit) ---------- */
+  const oldPriceInvalid = useMemo(() => {
+    const priceNum = Number(form.price);
+    const oldNum = Number(form.oldPrice);
+    if (form.oldPrice === "" || form.price === "") return false;
+    if (isNaN(priceNum) || isNaN(oldNum)) return false;
+    return oldNum <= priceNum;
+  }, [form.price, form.oldPrice]);
+
   // Validation
   const validate = () => {
     const e = {};
     if (!form.name.trim()) e.name = "Name is required";
     if (!form.categoryId) e.categoryId = "Select a category";
-    if (form.price === "" || isNaN(Number(form.price))) e.price = "Valid price required";
+
+    const priceNum = Number(form.price);
+    if (form.price === "" || isNaN(priceNum)) e.price = "Valid price required";
+
     // images are required only on ADD (server expects at least one)
     if (!form.id && newFiles.length === 0) e.images = "At least one image is required";
+
+    // Enforce Old Price > Price on both create & edit
+    if (
+      form.oldPrice !== "" &&
+      form.price !== "" &&
+      !isNaN(Number(form.oldPrice)) &&
+      !isNaN(priceNum) &&
+      Number(form.oldPrice) <= priceNum
+    ) {
+      e.oldPrice = "Old price must be greater than price.";
+    }
     return e;
   };
 
@@ -400,14 +424,22 @@ export default function ProductsAdmin() {
           headers: { "Content-Type": "multipart/form-data" },
         });
 
-        const updated = data?.product ? mapApiProductToRow(data.product) : mapApiProductToRow({
-          ...form,
-          images: form.images.filter((u) => !removeList.includes(u)),
-          price: Number(form.price || 0),
-          old_price: form.oldPrice === "" ? null : Number(form.oldPrice),
-          category: { id: form.categoryId, name: categories.find(c => c.id === Number(form.categoryId))?.name || "" },
-          updated_at: new Date().toISOString(),
-        });
+        const updated = data?.product
+          ? mapApiProductToRow(data.product)
+          : mapApiProductToRow({
+              ...form,
+              images: form.images.filter((u) => !removeList.includes(u)),
+              price: Number(form.price || 0),
+              old_price:
+                form.oldPrice === "" ? null : Number(form.oldPrice),
+              category: {
+                id: form.categoryId,
+                name:
+                  categories.find((c) => c.id === Number(form.categoryId))
+                    ?.name || "",
+              },
+              updated_at: new Date().toISOString(),
+            });
 
         setRows((prev) => prev.map((r) => (r.id === form.id ? { ...r, ...updated } : r)));
         showFlash("Product updated successfully.", "success");
@@ -437,20 +469,23 @@ export default function ProductsAdmin() {
   };
 
   /* ---------------- NEW: Gallery state + handlers ---------------- */
-  const [galleryOpen, setGalleryOpen] = useState(false);       // NEW
-  const [galleryImages, setGalleryImages] = useState([]);      // NEW
-  const [galleryTitle, setGalleryTitle] = useState("");        // NEW
+  const [galleryOpen, setGalleryOpen] = useState(false);
+  const [galleryImages, setGalleryImages] = useState([]);
+  const [galleryTitle, setGalleryTitle] = useState("");
 
-  const openGallery = (row) => {                               // NEW
-    const imgs = Array.isArray(row.images) && row.images.length
-      ? row.images
-      : row.cover ? [row.cover] : [];
+  const openGallery = (row) => {
+    const imgs =
+      Array.isArray(row.images) && row.images.length
+        ? row.images
+        : row.cover
+        ? [row.cover]
+        : [];
     setGalleryImages(imgs);
     setGalleryTitle(row.name || "Images");
     setGalleryOpen(true);
   };
 
-  const closeGallery = () => setGalleryOpen(false);            // NEW
+  const closeGallery = () => setGalleryOpen(false);
 
   return (
     <div className="space-y-6 relative">
@@ -463,7 +498,7 @@ export default function ProductsAdmin() {
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-green-900">Manage Products</h1>
-          <p className="text-gray-600 text-sm">Create, edit and remove product listings.</p>
+        <p className="text-gray-600 text-sm">Create, edit and remove product listings.</p>
         </div>
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="relative">
@@ -524,11 +559,11 @@ export default function ProductsAdmin() {
                     )}
                   </td>
 
-                  {/* CHANGED: Images cell opens gallery on click */}
+                  {/* Images cell opens gallery on click */}
                   <td className="px-6 py-3">
                     <button
                       type="button"
-                      onClick={() => openGallery(r)} // NEW
+                      onClick={() => openGallery(r)}
                       className="h-12 w-20 overflow-hidden rounded-md bg-gray-100 ring-1 ring-gray-200 grid place-items-center hover:ring-green-400 focus:outline-none focus:ring-2 focus:ring-green-600"
                       title="Open image gallery"
                     >
@@ -591,7 +626,9 @@ export default function ProductsAdmin() {
                 />
                 {/* Category select */}
                 <div>
-                  <label className="text-sm text-gray-700">Category <span className="text-red-500">*</span></label>
+                  <label className="text-sm text-gray-700">
+                    Category <span className="text-red-500">*</span>
+                  </label>
                   <select
                     value={form.categoryId}
                     onChange={(e) => setForm((f) => ({ ...f, categoryId: e.target.value }))}
@@ -603,7 +640,9 @@ export default function ProductsAdmin() {
                   >
                     <option value="">Select category…</option>
                     {categories.map((c) => (
-                      <option key={c.id} value={c.id}>{c.name}</option>
+                      <option key={c.id} value={c.id}>
+                        {c.name}
+                      </option>
                     ))}
                   </select>
                   {errors.categoryId && (
@@ -623,6 +662,8 @@ export default function ProductsAdmin() {
                   type="number"
                   value={form.oldPrice}
                   onChange={(v) => setForm((f) => ({ ...f, oldPrice: v }))}
+                  // inline live error shown here
+                  error={errors.oldPrice || (oldPriceInvalid ? "Old price must be greater than price." : undefined)}
                 />
               </div>
 
@@ -638,7 +679,9 @@ export default function ProductsAdmin() {
 
                 {/* Images: new upload */}
                 <div>
-                  <label className="text-sm text-gray-700">Upload Images {form.id ? "(optional)" : <span className="text-red-500">*</span>}</label>
+                  <label className="text-sm text-gray-700">
+                    Upload Images {form.id ? "(optional)" : <span className="text-red-500">*</span>}
+                  </label>
                   <input
                     type="file"
                     accept="image/*"
@@ -646,7 +689,9 @@ export default function ProductsAdmin() {
                     onChange={(e) => onPickImages(e.target.files)}
                     className="mt-1 block w-full rounded-lg border px-4 py-2"
                   />
-                  {errors.images && <p className="text-red-600 text-sm mt-1">{errors.images}</p>}
+                  {errors.images && (
+                    <p className="text-red-600 text-sm mt-1">{errors.images}</p>
+                  )}
 
                   {/* new previews */}
                   {newPreviews.length > 0 && (
@@ -709,7 +754,8 @@ export default function ProductsAdmin() {
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700"
+                  className="px-4 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 disabled:opacity-60"
+                  disabled={oldPriceInvalid} // prevent save when invalid
                 >
                   Save
                 </button>
@@ -719,13 +765,9 @@ export default function ProductsAdmin() {
         </div>
       )}
 
-      {/* NEW: Fullscreen Image Gallery */}
+      {/* Fullscreen Image Gallery */}
       {galleryOpen && (
-        <GalleryModal
-          title={galleryTitle}
-          images={galleryImages}
-          onClose={closeGallery}
-        />
+        <GalleryModal title={galleryTitle} images={galleryImages} onClose={closeGallery} />
       )}
     </div>
   );
