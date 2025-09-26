@@ -34,7 +34,18 @@ export default function ProductDetails() {
   if (loading) {
     return (
       <section className="pt-24 md:pt-28 lg:pt-32 max-w-7xl mx-auto px-6 py-10">
-        <div className="text-gray-500">Loading…</div>
+        <div className="animate-pulse space-y-4">
+          <div className="h-4 w-40 bg-gray-200 rounded" />
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+            <div className="aspect-[4/5] max-w-md bg-gray-200 rounded-2xl" />
+            <div className="space-y-3">
+              <div className="h-6 w-2/3 bg-gray-200 rounded" />
+              <div className="h-6 w-40 bg-gray-200 rounded" />
+              <div className="h-24 w-full bg-gray-200 rounded" />
+              <div className="h-10 w-52 bg-gray-200 rounded-full" />
+            </div>
+          </div>
+        </div>
       </section>
     );
   }
@@ -42,7 +53,7 @@ export default function ProductDetails() {
   if (err || !detail) {
     return (
       <section className="pt-24 md:pt-28 lg:pt-32 max-w-7xl mx-auto px-6 py-10">
-        <p className="text-gray-600">{err || "Product not found."}</p>
+        <p className="text-gray-600 mb-4">{err || "Product not found."}</p>
         <Link to="/products" className="text-green-700 underline">
           Back to products
         </Link>
@@ -50,63 +61,112 @@ export default function ProductDetails() {
     );
   }
 
+  const imgs = Array.isArray(detail.images) ? detail.images : [];
+  const hasDiscount =
+    detail?.old_price && Number(detail.old_price) > Number(detail.price ?? 0);
+  const discountPct = hasDiscount
+    ? Math.round(((Number(detail.old_price) - Number(detail.price)) / Number(detail.old_price)) * 100)
+    : 0;
+
   return (
     <section className="pt-24 md:pt-28 lg:pt-32 bg-gray-50">
-      <div className="max-w-7xl mx-auto px-6 py-10 grid grid-cols-1 lg:grid-cols-2 gap-10">
-        {/* Images */}
-        <div>
-          <div className="rounded-2xl overflow-hidden bg-white shadow-sm aspect-square">
-            <img
-              src={
-                Array.isArray(detail.images) && detail.images.length
-                  ? detail.images[activeImg]
-                  : "/placeholder.png"
-              }
-              alt={detail.name}
-              className="w-full h-full object-cover"
-            />
-          </div>
-          {Array.isArray(detail.images) && detail.images.length > 1 && (
-            <div className="grid grid-cols-5 gap-3 mt-4">
-              {detail.images.map((src, i) => (
-                <button
-                  key={i}
-                  onClick={() => setActiveImg(i)}
-                  className={`aspect-square rounded-lg overflow-hidden border ${i === activeImg ? "ring-2 ring-green-600" : ""}`}
-                >
-                  <img src={src} alt={`${detail.name} ${i + 1}`} className="w-full h-full object-cover" />
-                </button>
-              ))}
-            </div>
-          )}
+      <div className="max-w-7xl mx-auto px-6 py-8">
+        {/* Breadcrumb / Back */}
+        <div className="mb-6 flex items-center gap-3 text-sm">
+          <Link to="/products" className="text-green-700 hover:underline font-medium">
+            ← Back to Products
+          </Link>
+          <span className="text-gray-300">|</span>
+          <span className="text-gray-500 truncate">{detail.name}</span>
         </div>
 
-        {/* Info */}
-        <div>
-          <h1 className="text-2xl md:text-3xl font-semibold text-green-900">{detail.name}</h1>
-          {detail?.category?.name && (
-            <div className="mt-1 text-sm text-gray-500">Category: {detail.category.name}</div>
-          )}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+          {/* Images */}
+          <div className="flex flex-col items-center sm:items-start">
+            {/* Slightly smaller main image: narrower max width + 4:5 aspect */}
+            <div className="w-full max-w-md rounded-2xl overflow-hidden bg-white shadow-sm ring-1 ring-gray-100">
+              <div className="aspect-[4/5]">
+                <img
+                  src={imgs.length ? imgs[activeImg] : "/placeholder.png"}
+                  alt={detail.name}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            </div>
 
-          <div className="mt-4 text-2xl font-bold text-green-800">Rs. {detail.price ?? 0}</div>
-          {detail.old_price && detail.old_price > (detail.price ?? 0) && (
-            <div className="mt-1 text-sm text-gray-500 line-through">Rs. {detail.old_price}</div>
-          )}
+            {/* Thumbnails */}
+            {imgs.length > 1 && (
+              <div className="mt-4 w-full max-w-md">
+                <div className="grid grid-cols-5 gap-3">
+                  {imgs.map((src, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setActiveImg(i)}
+                      className={`aspect-square rounded-xl overflow-hidden bg-white ring-1 transition 
+                        ${i === activeImg ? "ring-2 ring-green-600" : "ring-gray-200 hover:ring-green-300"}`}
+                      title={`View image ${i + 1}`}
+                    >
+                      <img
+                        src={src}
+                        alt={`${detail.name} ${i + 1}`}
+                        className="w-full h-full object-cover"
+                        loading="lazy"
+                      />
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
 
-          <p className="mt-6 text-gray-700 leading-relaxed whitespace-pre-line">
-            {detail.description || "No description available."}
-          </p>
+          {/* Info */}
+          <div>
+            <h1 className="text-3xl font-semibold text-green-900 leading-tight">
+              {detail.name}
+            </h1>
 
-          <div className="mt-8 flex gap-3">
-            <Link
-              to="/products"
-              className="rounded-full bg-white border border-green-200 text-green-700 px-5 py-3 font-semibold hover:bg-green-50 transition"
-            >
-              ← Back to Products
-            </Link>
-            <button className="rounded-full bg-green-600 text-white px-6 py-3 font-semibold hover:bg-green-700">
-              Add to Cart
-            </button>
+            {detail?.category?.name && (
+              <div className="mt-2">
+                <span className="inline-flex items-center rounded-full bg-green-50 text-green-800 px-3 py-1 text-xs font-medium ring-1 ring-green-100">
+                  {detail.category.name}
+                </span>
+              </div>
+            )}
+
+            {/* Price block */}
+            <div className="mt-6 flex items-end gap-3">
+              <div className="text-3xl font-bold text-green-800">
+                Rs. {detail.price ?? 0}
+              </div>
+              {hasDiscount && (
+                <>
+                  <div className="text-sm text-gray-500 line-through">
+                    Rs. {detail.old_price}
+                  </div>
+                  <span className="text-xs font-semibold bg-red-50 text-red-700 ring-1 ring-red-100 px-2 py-1 rounded-full">
+                    {discountPct}% OFF
+                  </span>
+                </>
+              )}
+            </div>
+
+            <p className="mt-6 text-gray-700 leading-relaxed whitespace-pre-line">
+              {detail.description || "No description available."}
+            </p>
+
+            <div className="mt-8 flex flex-wrap gap-3">
+              <Link
+                to="/products"
+                className="rounded-full bg-white border border-green-200 text-green-700 px-5 py-3 font-semibold hover:bg-green-50 transition"
+              >
+                ← Back to Products
+              </Link>
+            </div>
+
+            {/* Meta */}
+            <div className="mt-8 text-xs text-gray-400">
+              SKU: {detail?.slug || slug}
+            </div>
           </div>
         </div>
       </div>

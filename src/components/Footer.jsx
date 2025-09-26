@@ -40,17 +40,11 @@ export default function Footer() {
         <div>
           <h3 className="text-yellow-400 font-semibold mb-2">Follow Us</h3>
           <div className="flex space-x-4 mt-2">
-            <a href="#" className="hover:text-yellow-400">
+            <a href="https://www.facebook.com/NationalHerboTrade/" className="hover:text-yellow-400">
               <FaFacebookF />
             </a>
-            <a href="#" className="hover:text-yellow-400">
+            <a href="https://www.instagram.com/p/DNri3lKQGlR/" className="hover:text-yellow-400">
               <FaInstagram />
-            </a>
-            <a href="#" className="hover:text-yellow-400">
-              <FaLinkedinIn />
-            </a>
-            <a href="#" className="hover:text-yellow-400">
-              <FaYoutube />
             </a>
           </div>
         </div>

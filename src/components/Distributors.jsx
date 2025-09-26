@@ -157,11 +157,12 @@ export default function Distributors() {
             </div>
             <div className="flex gap-3">
               <a
-                href="mailto:info@nationalherbs.com?subject=Distributor%20Inquiry"
+                href="/distributormailrequest"
                 className="rounded-full bg-green-600 text-white font-semibold px-5 py-3 hover:bg-green-700 transition"
               >
                 Email Us
               </a>
+
               <a
                 href="/catalog.pdf"
                 className="rounded-full bg-white text-green-700 border border-green-200 font-semibold px-5 py-3 hover:bg-green-50 transition"

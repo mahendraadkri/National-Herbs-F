@@ -1,6 +1,5 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { FaStar } from "react-icons/fa";
 
 export default function ProductGrid({ products }) {
   if (!products.length) {
@@ -21,11 +20,14 @@ export default function ProductGrid({ products }) {
 }
 
 function ProductCard({ product }) {
-  const { slug, name, price, rating, image, badge } = product;
+  const { slug, name, price, oldPrice, image, badge } = product;
 
   return (
     <article className="bg-white rounded-2xl shadow-sm hover:shadow-md transition overflow-hidden">
-      <Link to={`/products/${slug}`} className="block relative h-56 w-full overflow-hidden">
+      <Link
+        to={`/products/${slug}`}
+        className="block relative h-56 w-full overflow-hidden"
+      >
         {badge && (
           <span className="absolute left-3 top-3 z-10 rounded-full bg-green-600 text-white text-xs font-semibold px-3 py-1">
             {badge}
@@ -45,17 +47,21 @@ function ProductCard({ product }) {
           </h3>
         </Link>
 
-      <div className="mt-2 flex items-center justify-between">
-          <div className="flex items-center gap-1 text-yellow-500">
-            <FaStar /><span className="text-sm text-gray-700">{rating}</span>
-          </div>
-          <div className="text-lg font-semibold text-green-800">Rs. {price}</div>
+        {/* Price Section */}
+        <div className="mt-2 flex items-center gap-2">
+          {oldPrice && oldPrice > price && (
+            <span className="text-sm text-gray-900 line-through">
+              Rs. {oldPrice}
+            </span>
+          )}
+          <span className="text-lg font-semibold text-green-800">
+            Rs. {price}
+          </span>
         </div>
 
         <Link
           to={`/products/${slug}`}
-          className="mt-4 w-full inline-flex justify-center rounded-full bg-green-600 text-white font-semibold py-2.5 hover:bg-green-700 transition"
-        >
+          className="mt-4 w-full inline-flex justify-center rounded-full bg-green-600 text-white font-semibold py-2.5 hover:bg-green-700 transition">
           View Details
         </Link>
       </div>

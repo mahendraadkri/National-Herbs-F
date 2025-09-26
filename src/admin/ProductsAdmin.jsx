@@ -110,6 +110,79 @@ function Pill({ children }) {
   );
 }
 
+/* ---------------- NEW: Image Gallery Modal ---------------- */
+function GalleryModal({ title, images, onClose }) {
+  // lock body scroll while open
+  useEffect(() => {
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const onKey = (e) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = prev;
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [onClose]);
+
+  return (
+    <div
+      className="fixed inset-0 z-[70]"
+      role="dialog"
+      aria-modal="true"
+      aria-label={`${title || "Product"} image gallery`}
+    >
+      {/* Backdrop with blur */}
+      <div
+        className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+        onClick={onClose}
+      />
+      <div className="relative z-10 min-h-screen w-full flex items-center justify-center p-4">
+        <div className="w-full max-w-6xl bg-white rounded-2xl shadow-2xl ring-1 ring-black/5 p-4 md:p-6">
+          {/* Header */}
+          <div className="flex items-center justify-between gap-3 mb-4">
+            <h3 className="text-lg md:text-xl font-semibold text-green-900 truncate">
+              {title || "Images"}
+            </h3>
+            <button
+              onClick={onClose}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-900 text-white hover:bg-gray-800"
+            >
+              ← Go Back
+            </button>
+          </div>
+
+          {/* Images grid */}
+          {Array.isArray(images) && images.length > 0 ? (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+              {images.map((src, idx) => (
+                <a
+                  key={src + idx}
+                  href={src}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="group block aspect-square overflow-hidden rounded-xl ring-1 ring-gray-200 hover:ring-green-400 focus:outline-none focus:ring-2 focus:ring-green-600"
+                  title="Open original"
+                >
+                  <img
+                    src={src}
+                    alt={`image ${idx + 1}`}
+                    className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-[1.03]"
+                    loading="lazy"
+                  />
+                </a>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center text-gray-500 py-8">No images.</div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* ---------------- main component ---------------- */
 export default function ProductsAdmin() {
   const [rows, setRows] = useState([]);
@@ -363,6 +436,22 @@ export default function ProductsAdmin() {
     }
   };
 
+  /* ---------------- NEW: Gallery state + handlers ---------------- */
+  const [galleryOpen, setGalleryOpen] = useState(false);       // NEW
+  const [galleryImages, setGalleryImages] = useState([]);      // NEW
+  const [galleryTitle, setGalleryTitle] = useState("");        // NEW
+
+  const openGallery = (row) => {                               // NEW
+    const imgs = Array.isArray(row.images) && row.images.length
+      ? row.images
+      : row.cover ? [row.cover] : [];
+    setGalleryImages(imgs);
+    setGalleryTitle(row.name || "Images");
+    setGalleryOpen(true);
+  };
+
+  const closeGallery = () => setGalleryOpen(false);            // NEW
+
   return (
     <div className="space-y-6 relative">
       {/* Flash */}
@@ -434,8 +523,15 @@ export default function ProductsAdmin() {
                       <span className="font-semibold text-green-800">Rs. {r.price}</span>
                     )}
                   </td>
+
+                  {/* CHANGED: Images cell opens gallery on click */}
                   <td className="px-6 py-3">
-                    <div className="h-12 w-20 overflow-hidden rounded-md bg-gray-100 ring-1 ring-gray-200 grid place-items-center">
+                    <button
+                      type="button"
+                      onClick={() => openGallery(r)} // NEW
+                      className="h-12 w-20 overflow-hidden rounded-md bg-gray-100 ring-1 ring-gray-200 grid place-items-center hover:ring-green-400 focus:outline-none focus:ring-2 focus:ring-green-600"
+                      title="Open image gallery"
+                    >
                       {r.cover ? (
                         <img src={r.cover} alt={r.name} className="h-full w-full object-cover" />
                       ) : (
@@ -443,8 +539,9 @@ export default function ProductsAdmin() {
                           <FaImages /> none
                         </span>
                       )}
-                    </div>
+                    </button>
                   </td>
+
                   <td className="px-6 py-3">{r.updatedAt || "—"}</td>
                   <td className="px-6 py-3 text-right space-x-2">
                     <button
@@ -620,6 +717,15 @@ export default function ProductsAdmin() {
             </form>
           </div>
         </div>
+      )}
+
+      {/* NEW: Fullscreen Image Gallery */}
+      {galleryOpen && (
+        <GalleryModal
+          title={galleryTitle}
+          images={galleryImages}
+          onClose={closeGallery}
+        />
       )}
     </div>
   );

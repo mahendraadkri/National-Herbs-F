@@ -8,21 +8,39 @@ import ProductGrid from "./ProductGrid";
 const API_BASE = `${import.meta.env.VITE_API_URL}/api`;
 
 const COLLECTIONS = [
-  { id: "c1", title: "Glow Essentials", subtitle: "Radiance-boosting skincare", image: "/assets/collections/glow.jpg", color: "from-amber-100 to-orange-50" },
-  { id: "c2", title: "Clean Hair Care",   subtitle: "Nourishing, sulfate-free",    image: "/assets/collections/hair.jpg", color: "from-indigo-100 to-sky-50" },
-  { id: "c3", title: "Morning Wellness",  subtitle: "Teas & seeds to start right", image: "/assets/collections/wellness.jpg", color: "from-emerald-100 to-green-50" },
+  {
+    id: "c1",
+    title: "Glow Essentials",
+    subtitle: "Radiance-boosting skincare",
+    image: "/assets/collections/glow.jpg",
+    color: "from-amber-100 to-orange-50",
+  },
+  {
+    id: "c2",
+    title: "Clean Hair Care",
+    subtitle: "Nourishing, sulfate-free",
+    image: "/assets/collections/hair.jpg",
+    color: "from-indigo-100 to-sky-50",
+  },
+  {
+    id: "c3",
+    title: "Morning Wellness",
+    subtitle: "Teas & seeds to start right",
+    image: "/assets/collections/wellness.jpg",
+    color: "from-emerald-100 to-green-50",
+  },
 ];
 
 export default function Products() {
   const [categories, setCategories] = useState(["All"]);
   const [active, setActive] = useState("All");
   const [query, setQuery] = useState("");
-  const [sort, setSort] = useState("popular"); // popular | price-asc | price-desc
-  const [rows, setRows] = useState([]); // products for grid
+  const [sort, setSort] = useState("popular");
+  const [rows, setRows] = useState([]); 
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState("");
 
-  // ====== Fetch categories + products from API ======
+  
   useEffect(() => {
     let mounted = true;
     (async () => {
@@ -31,8 +49,8 @@ export default function Products() {
         setErr("");
 
         const [catRes, prodRes] = await Promise.all([
-          axios.get(`${API_BASE}/categories`), // { categories: [...] }
-          axios.get(`${API_BASE}/products`),   // { success: true, data: [...] }
+          axios.get(`${API_BASE}/categories`),
+          axios.get(`${API_BASE}/products`), 
         ]);
 
         if (!mounted) return;
@@ -42,24 +60,34 @@ export default function Products() {
         setCategories(["All", ...Array.from(new Set(catList)).sort()]);
 
         // products
-        const products = Array.isArray(prodRes?.data?.data) ? prodRes.data.data : [];
-        const viewModels = products.map((p) => ({
-          id: p.id,
-          slug: p.slug,
-          name: p.name,
-          price: p.price ?? 0,
-          rating: typeof p.rating === "number" ? p.rating : 4.8,
-          image:
-            Array.isArray(p.images) && p.images.length
-              ? p.images[0]
-              : "/placeholder.png",
-          badge:
-            p.old_price && p.price && Number(p.old_price) > Number(p.price)
-              ? "Sale"
-              : null,
-          _cat: p?.category?.name || "",
-          _desc: p?.description || "",
-        }));
+        const products = Array.isArray(prodRes?.data?.data)
+          ? prodRes.data.data
+          : [];
+        const viewModels = products.map((p) => {
+          const price = Number(p.price ?? 0);
+          const oldPrice =
+            p.old_price != null ? Number(p.old_price) : null;
+          const hasDiscount = oldPrice && oldPrice > price;
+          const discountPct = hasDiscount
+            ? Math.round(((oldPrice - price) / oldPrice) * 100)
+            : 0;
+
+          return {
+            id: p.id,
+            slug: p.slug,
+            name: p.name,
+            price,
+            oldPrice,
+            discountPct,
+            image:
+              Array.isArray(p.images) && p.images.length
+                ? p.images[0]
+                : "/placeholder.png",
+            badge: discountPct > 0 ? `${discountPct}% OFF` : null,
+            _cat: p?.category?.name || "",
+            _desc: p?.description || "",
+          };
+        });
         setRows(viewModels);
       } catch (e) {
         console.error(e);
@@ -87,7 +115,7 @@ export default function Products() {
     });
     if (sort === "price-asc") out = [...out].sort((a, b) => a.price - b.price);
     if (sort === "price-desc") out = [...out].sort((a, b) => b.price - a.price);
-    if (sort === "popular") out = [...out].sort((a, b) => b.rating - a.rating);
+    // "popular" sort can be adjusted later, for now just leave order unchanged
     return out;
   }, [rows, active, query, sort]);
 

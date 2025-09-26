@@ -20,7 +20,7 @@ export default function AboutPage() {
         <MissionVision />
         <WhyChooseUs />
         <Team />
-        <Certificates />
+        {/* <Certificates /> */}
         <Sustainability />
         <ManufacturingProcess />
         <Newsletter />

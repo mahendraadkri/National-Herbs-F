@@ -1,10 +1,6 @@
 import React, { useState } from "react";
-import {
-  FaPhoneAlt,
-  FaEnvelope,
-  FaMapMarkerAlt,
-  FaClock,
-} from "react-icons/fa";
+import axios from "axios";
+import { FaPhoneAlt, FaEnvelope, FaMapMarkerAlt, FaClock } from "react-icons/fa";
 import leafIcon from "../assets/logo-icon.png";
 
 export default function Contact() {
@@ -12,20 +8,24 @@ export default function Contact() {
     name: "",
     email: "",
     phone: "",
-    subject: "",
     message: "",
   });
   const [errors, setErrors] = useState({});
   const [sent, setSent] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
-  // simple validators
+  // base API URL from .env
+  const API = import.meta.env.VITE_API_URL;
+  if (!API) {
+    console.warn(" Missing VITE_API_URL in .env ...");
+  }
+
+  // simple validators (client-side UX)
   const validate = () => {
     const e = {};
     if (!form.name.trim()) e.name = "Name is required";
     if (!/^\S+@\S+\.\S+$/.test(form.email)) e.email = "Enter a valid email";
-    if (form.phone && !/^\+?\d{7,15}$/.test(form.phone))
-      e.phone = "Enter a valid phone number";
-    if (!form.message.trim() || form.message.trim().length < 10)
+    if (form.message.trim().length < 10)
       e.message = "Message should be at least 10 characters";
     return e;
   };
@@ -33,32 +33,52 @@ export default function Contact() {
   const onChange = (ev) => {
     const { name, value } = ev.target;
     setForm((f) => ({ ...f, [name]: value }));
-    // clear only this field's error while typing
     setErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
-  const onSubmit = (e) => {
+  const onSubmit = async (e) => {
     e.preventDefault();
     const eMap = validate();
     setErrors(eMap);
     if (Object.keys(eMap).length > 0) return;
 
-    // Fallback: open default email client
-    const body = encodeURIComponent(
-      `Subject: ${form.subject || "(no subject)"}\nName: ${form.name}\nEmail: ${
-        form.email
-      }\nPhone: ${form.phone}\n\n${form.message}`
-    );
-    window.location.href = `mailto:info@nationalherbs.com?subject=${encodeURIComponent(
-      form.subject || "Website Contact"
-    )}&body=${body}`;
+    setSubmitting(true);
+    setSent(false);
 
-    setSent(true);
-    setForm({ name: "", email: "", phone: "", subject: "", message: "" });
-    setErrors({});
+    try {
+      const res = await axios.post(
+        `${API}/api/storecontact`,
+        {
+          name: form.name,
+          email: form.email,
+          phone: form.phone || null, // optional
+          message: form.message,
+        },
+        { headers: { "Content-Type": "application/json" } }
+      );
+
+      setSent(true);
+      setForm({ name: "", email: "", phone: "", message: "" });
+      setErrors({});
+    } catch (err) {
+      if (err.response && err.response.status === 422) {
+        const be = err.response.data?.errors || {};
+        const normalized = {};
+        Object.entries(be).forEach(([field, msgs]) => {
+          normalized[field] = Array.isArray(msgs) ? msgs[0] : String(msgs);
+        });
+        setErrors(normalized);
+      } else {
+        setErrors((prev) => ({
+          ...prev,
+          form: "Something went wrong. Please try again.",
+        }));
+      }
+    } finally {
+      setSubmitting(false);
+    }
   };
 
-  // utility to build input classes based on error
   const inputClass = (hasErr) =>
     `mt-1 w-full rounded-lg border bg-white px-4 py-3 focus:outline-none ${
       hasErr
@@ -71,7 +91,11 @@ export default function Contact() {
       <div className="max-w-7xl mx-auto px-6 pb-12">
         {/* Header */}
         <div className="text-center mb-8">
-          <img src={leafIcon} alt="" className="h-24 w-24 mx-auto object-contain" />
+          <img
+            src={leafIcon}
+            alt=""
+            className="h-24 w-24 mx-auto object-contain"
+          />
           <h1 className="text-3xl md:text-4xl font-semibold text-green-900">
             Contact Us
           </h1>
@@ -110,7 +134,9 @@ export default function Contact() {
               icon={<FaMapMarkerAlt />}
               title="Address"
               lines={["Nayabazar, Sorakhutte", "Kathmandu, Nepal"]}
-              hrefs={["https://maps.google.com/?q=Nayabazar,Sorakhutte,Kathmandu"]}
+              hrefs={[
+                "https://maps.google.com/?q=Nayabazar,Sorakhutte,Kathmandu",
+              ]}
               external
             />
             <InfoCard
@@ -125,12 +151,19 @@ export default function Contact() {
             <div className="rounded-2xl bg-white shadow-sm ring-1 ring-gray-100 p-6 md:p-8">
               {sent && (
                 <div className="mb-4 rounded-md bg-green-50 text-green-800 px-4 py-3">
-                  Thank you! Your default email client just opened with your
-                  message. We’ll be in touch.
+                  Thank you! Your message has been received. We’ll be in touch.
+                </div>
+              )}
+              {errors.form && (
+                <div className="mb-4 rounded-md bg-red-50 text-red-700 px-4 py-3">
+                  {errors.form}
                 </div>
               )}
 
-              <form onSubmit={onSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <form
+                onSubmit={onSubmit}
+                className="grid grid-cols-1 md:grid-cols-2 gap-4"
+              >
                 {/* Name */}
                 <div>
                   <label className="text-sm text-gray-700">Full Name</label>
@@ -169,24 +202,12 @@ export default function Contact() {
                     name="phone"
                     value={form.phone}
                     onChange={onChange}
-                    placeholder="+977 ..."
+                    placeholder="98XXXXXXXX"
                     className={inputClass(!!errors.phone)}
                   />
                   {errors.phone && (
                     <p className="text-red-600 text-sm mt-1">{errors.phone}</p>
                   )}
-                </div>
-
-                {/* Subject */}
-                <div>
-                  <label className="text-sm text-gray-700">Subject</label>
-                  <input
-                    name="subject"
-                    value={form.subject}
-                    onChange={onChange}
-                    placeholder="How can we help?"
-                    className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500"
-                  />
                 </div>
 
                 {/* Message */}
@@ -211,9 +232,14 @@ export default function Contact() {
                   </p>
                   <button
                     type="submit"
-                    className="rounded-full bg-green-600 text-white font-semibold px-6 py-3 hover:bg-green-700 transition"
+                    disabled={submitting}
+                    className={`rounded-full text-white font-semibold px-6 py-3 transition ${
+                      submitting
+                        ? "bg-green-400 cursor-not-allowed"
+                        : "bg-green-600 hover:bg-green-700"
+                    }`}
                   >
-                    Send Message
+                    {submitting ? "Sending..." : "Send Message"}
                   </button>
                 </div>
               </form>
@@ -242,7 +268,12 @@ function InfoCard({ icon, title, lines, hrefs = [], external = false }) {
           if (!href) return <li key={i}>{line}</li>;
           return external ? (
             <li key={i}>
-              <a className="text-green-700 hover:underline" href={href} target="_blank" rel="noreferrer">
+              <a
+                className="text-green-700 hover:underline"
+                href={href}
+                target="_blank"
+                rel="noreferrer"
+              >
                 {line}
               </a>
             </li>
